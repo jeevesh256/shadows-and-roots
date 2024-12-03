@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://b0xwrcgdohbwk"]
+
+[ext_resource type="Script" path="res://scripts/projectile.gd" id="1_tgf2v"]
+[ext_resource type="Texture2D" uid="uid://c4hdtw0auw2ld" path="res://assets/kenney_particle-pack/PNG (Transparent)/muzzle_01.png" id="1_x3bsl"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_rpagh"]
+radius = 123.479
+height = 370.47
+
+[node name="projectile" type="Area2D"]
+texture_filter = 1
+scale = Vector2(0.1, 0.1)
+collision_mask = 2
+script = ExtResource("1_tgf2v")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(20, -3.76929e-09)
+rotation = -1.56886
+scale = Vector2(1.1338, 0.968805)
+shape = SubResource("CapsuleShape2D_rpagh")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.512379, 0.593868, 0.992729, 1)
+position = Vector2(160, -1.05399)
+rotation = 4.71239
+scale = Vector2(-2.00129, 1.36274)
+texture = ExtResource("1_x3bsl")
+offset = Vector2(-2.20991, -154.807)
+
+[node name="Timer" type="Timer" parent="."]
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

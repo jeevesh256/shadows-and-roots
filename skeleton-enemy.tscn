@@ -1,0 +1,71 @@
+[gd_scene load_steps=11 format=3 uid="uid://8wfp12bwqryj"]
+
+[ext_resource type="Texture2D" uid="uid://csvhbukmkrnh" path="res://assets/Skeleton.png" id="1_5n1tr"]
+[ext_resource type="Script" path="res://scripts/skeleton-enemy.gd" id="1_ah45e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wtg7x"]
+atlas = ExtResource("1_5n1tr")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1h1g5"]
+atlas = ExtResource("1_5n1tr")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_68yux"]
+atlas = ExtResource("1_5n1tr")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5yrk6"]
+atlas = ExtResource("1_5n1tr")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rx03s"]
+atlas = ExtResource("1_5n1tr")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vuvhr"]
+atlas = ExtResource("1_5n1tr")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2i1ie"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wtg7x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1h1g5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_68yux")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5yrk6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rx03s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vuvhr")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_f0jrf"]
+radius = 8.0
+height = 28.0
+
+[node name="skeleton" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_ah45e")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_2i1ie")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -3)
+shape = SubResource("CapsuleShape2D_f0jrf")
