@@ -84,7 +84,7 @@ func _physics_process(delta):
 		handle_movement_and_jump(delta)
 		
 	if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
-		velocity.y = min(velocity.y, wall_slide_gravity)  
+		velocity.y = min(velocity.y, wall_slide_gravity)
 	
 	if Input.is_action_just_pressed("projectile") and can_shoot_projectile:
 		shoot_projectile()
@@ -147,6 +147,7 @@ func handle_landing():
 	# Reset jump state if we land
 	if is_on_floor_now:
 		is_jumping = false  # Reset jump state when landing
+		can_dash = true  # Reset can_dash when landing
 
 	was_on_floor = is_on_floor_now
 	is_on_ground = is_on_floor_now
@@ -167,6 +168,7 @@ func handle_movement_and_jump(delta):
 		coyote_timer = 0  # Reset coyote timer after a jump
 		jump_buffer_timer = 0  # Reset jump buffer timer after jump
 		jump_pressed = false  # Reset jump pressed state after jump
+		can_dash = true  # Reset can_dash after jump
 
 	# Prevent double jump by checking if already jumping or in air
 	if jump_buffer_timer > 0 and not is_jumping and (is_on_floor() or coyote_timer > 0):
@@ -175,12 +177,14 @@ func handle_movement_and_jump(delta):
 		jump_time = 0  # Reset jump time when jump is pressed
 		coyote_timer = 0  # Reset coyote timer after a jump
 		jump_buffer_timer = 0  # Reset jump buffer timer after jump
-		
+		can_dash = true  # Reset can_dash after jump
+
 	# Wall jump logic
 	if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
 		velocity = Vector2(get_wall_normal().x * WALL_JUMP_PUSHBACK, WALL_JUMP_VELOCITY.y)
 		jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
 		wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
+		can_dash = true  # Reset can_dash after wall jump
 
 	# While in the air, check for jump height control
 	if is_jumping:
@@ -199,9 +203,39 @@ func handle_movement_and_jump(delta):
 		velocity.x = 0  # Stop horizontal movement to allow reattachment
 
 	# Handle dash
-	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
+	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
 		start_dash()
-		can_dash = false  # Disable further dashing until reset if not wall sliding
+		can_dash = false  # Disable further dashing until reset
+
+	if attack_buffer_timer > 0:
+		start_attack()
+		attack_buffer_timer = 0  # Reset attack buffer timer after attack
+
+	if Input.is_action_just_pressed("attack"):
+		start_attack()
+
+	# Handle animations
+	if is_on_floor() and not is_attacking:
+		if direction != 0:
+			animated_sprite_2d.play("run")
+		else:
+			animated_sprite_2d.play("default")
+	elif not is_on_floor() and not is_attacking:
+		if velocity.y < 0:
+			animated_sprite_2d.play("jump")
+		elif velocity.y > 0:
+			animated_sprite_2d.play("fall")
+	else:
+		pass
+
+	if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
+		velocity.y = min(velocity.y, wall_slide_gravity)
+		# Do not reset can_dash during wall slide
+
+	# Handle dash
+	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
+		start_dash()
+		can_dash = false  # Disable further dashing until reset
 		
 	if attack_buffer_timer > 0:
 		start_attack()
@@ -259,6 +293,9 @@ func start_dash():
 	else:
 		velocity.x = DASH_SPEED  # Dash right
 		show_dash_effect("right")
+
+	# Ensure can_dash is false after starting a dash
+	can_dash = false
 
 func handle_dash(delta):
 	# Reduce the remaining dash time
