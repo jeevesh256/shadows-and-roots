@@ -23,13 +23,7 @@ func _on_Timer_timeout():
 	queue_free()  # Destroy the projectile after it has existed for LIFETIME
 
 # Collision detection
-func _on_Area2D_body_entered(body):
-	if body.is_in_group("enemies"):  # Replace with your enemy group
-		#body.take_damage(1)  # Apply damage to the enemy
-		queue_free()  # Destroy the spirit after hitting the enemy
-
-
-
 func _on_area_entered(area):
+	print(area.name)
 	if area.is_in_group("enemies"):
 		area.queue_free()

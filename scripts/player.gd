@@ -8,7 +8,6 @@ const DASH_COOLDOWN = 0.5  # Dash cooldown (in seconds)
 const MOVE_SPEED = 300.0  # Movement speed (fixed)
 const GRAVITY = 2000.0  # Increased gravity for a faster fall
 const JUMP_BUFFER_TIME = 0.1  # Time window to buffer jump input
-const POGO_VELOCITY = -400.0  # Velocity applied when pogoing
 const ATTACK_BUFFER_TIME = 0.1  # Time window to buffer attack input
 const JUMP_CUT_GRAVITY = 6000.0  # Further increased gravity when jump is cut short
 const JUMP_HOLD_GRAVITY = 1500.0  # Reduced gravity when holding jump for a higher jump
@@ -38,8 +37,8 @@ var is_on_ground = false
 var can_shoot_projectile = true
 var dead=false
 var wall_slide_gravity = 300
-var can_pogo = true  # New state variable to track pogo availability
 var attack_buffer_timer = 0.0  # Timer for attack buffering
+var can_dash = true  # State variable to track if the player can dash
 
 # Jump variables
 var is_jumping = false
@@ -100,6 +99,14 @@ func _physics_process(delta):
 		jump_pressed = true  # Mark jump as pressed
 		jump_buffer_timer = JUMP_BUFFER_TIME  # Reset buffer timer when jump is pressed
 
+	if is_on_floor():
+		can_dash = true  # Reset can_dash when on the floor
+
+	# Handle dash
+	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
+		start_dash()
+		can_dash = false  # Disable further dashing until reset if not wall sliding
+
 func update_dash_cooldown(delta):
 	if dash_cooldown_remaining > 0:
 		dash_cooldown_remaining -= delta  # Frame-based cooldown
@@ -140,7 +147,6 @@ func handle_landing():
 	# Reset jump state if we land
 	if is_on_floor_now:
 		is_jumping = false  # Reset jump state when landing
-		can_pogo = true  # Reset pogo availability when landing
 
 	was_on_floor = is_on_floor_now
 	is_on_ground = is_on_floor_now
@@ -193,8 +199,9 @@ func handle_movement_and_jump(delta):
 		velocity.x = 0  # Stop horizontal movement to allow reattachment
 
 	# Handle dash
-	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0:
+	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
 		start_dash()
+		can_dash = false  # Disable further dashing until reset if not wall sliding
 		
 	if attack_buffer_timer > 0:
 		start_attack()
@@ -227,7 +234,6 @@ func start_attack():
 		animated_sprite_2d.play("attack_up")
 	elif Input.is_action_pressed("ui_down"):
 		sword_down.disabled = false
-		pogo()  # Always call pogo when attacking down
 		animated_sprite_2d.play("attack_down")
 	else:
 		if animated_sprite_2d.flip_h:  # If facing left
@@ -321,15 +327,10 @@ func die():
 	animated_sprite_2d.play("death")
 
 func _on_attack_collision_area_entered(area):
+	print(area.name)
 	if area.is_in_group("enemies"):
-		area.queue_free()
-		if Input.is_action_pressed("ui_down"):
-			pogo()
-
-func pogo():
-	if velocity.y > 0 and can_pogo:  # Only pogo if falling, can pogo
-		velocity.y = POGO_VELOCITY  # Apply pogo velocity
-		can_pogo = false  # Disable further pogo until landing
+		if area.is_in_group("enemies"):
+			area.queue_free()
 
 func _on_timer_timeout():
 	sword_left.disabled = true
