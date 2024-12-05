@@ -6,13 +6,11 @@ const DASH_SPEED = 800.0  # Dash speed (fixed)
 const DASH_DURATION = 0.2  # Dash duration (in seconds)
 const DASH_COOLDOWN = 0.5  # Dash cooldown (in seconds)
 const MOVE_SPEED = 300.0  # Movement speed (fixed)
-const GRAVITY = 2000.0  # Increased gravity for a faster fall
+const GRAVITY = 3000.0  # Increased gravity for a faster fall
 const JUMP_BUFFER_TIME = 0.1  # Time window to buffer jump input
 const ATTACK_BUFFER_TIME = 0.1  # Time window to buffer attack input
-const JUMP_CUT_GRAVITY = 6000.0  # Further increased gravity when jump is cut short
-const JUMP_HOLD_GRAVITY = 1500.0  # Reduced gravity when holding jump for a higher jump
-const SHORT_JUMP_VELOCITY = -300.0  # Velocity for a short jump
-const LONG_JUMP_VELOCITY = -600.0  # Velocity for a long jump
+const JUMP_CUT_GRAVITY = 9000.0  # Further increased gravity when jump is cut short
+const JUMP_HOLD_GRAVITY = 2250.0  # Reduced gravity when holding jump for a higher jump
 
 # Nodes
 @onready var animated_sprite_2d = $AnimatedSprite2D
@@ -75,7 +73,10 @@ func _physics_process(delta):
 
 	# Apply gravity
 	if not is_dashing and not is_on_ground:
-		velocity.y += GRAVITY * delta  # Apply gravity consistently per frame
+		if is_jumping and not Input.is_action_pressed("jump"):
+			velocity.y += JUMP_CUT_GRAVITY * delta  # Apply jump cut gravity if jump is cut short
+		else:
+			velocity.y += GRAVITY * delta  # Apply normal gravity
 
 	# Dash or normal movement
 	if is_dashing:
@@ -162,7 +163,7 @@ func handle_movement_and_jump(delta):
 
 	# Buffer jump input
 	if jump_pressed and (is_on_floor() or coyote_timer > 0):
-		velocity.y = LONG_JUMP_VELOCITY  # Apply long jump force initially
+		velocity.y = JUMP_VELOCITY  # Apply initial jump force
 		is_jumping = true  # Mark as jumping
 		jump_time = 0  # Reset jump time when jump is pressed
 		coyote_timer = 0  # Reset coyote timer after a jump
@@ -170,14 +171,13 @@ func handle_movement_and_jump(delta):
 		jump_pressed = false  # Reset jump pressed state after jump
 		can_dash = true  # Reset can_dash after jump
 
-	# Prevent double jump by checking if already jumping or in air
-	if jump_buffer_timer > 0 and not is_jumping and (is_on_floor() or coyote_timer > 0):
-		velocity.y = LONG_JUMP_VELOCITY  # Apply long jump force initially
-		is_jumping = true  # Mark as jumping
-		jump_time = 0  # Reset jump time when jump is pressed
-		coyote_timer = 0  # Reset coyote timer after a jump
-		jump_buffer_timer = 0  # Reset jump buffer timer after jump
-		can_dash = true  # Reset can_dash after jump
+	# Gradual jump height increase
+	if is_jumping:
+		jump_time += delta  # Increment jump time
+		if jump_time < JUMP_HOLD_TIME and Input.is_action_pressed("jump"):
+			velocity.y = JUMP_VELOCITY  # Continue applying initial jump force
+		else:
+			is_jumping = false  # End jump when max hold time is reached or button is released
 
 	# Wall jump logic
 	if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
@@ -185,14 +185,6 @@ func handle_movement_and_jump(delta):
 		jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
 		wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
 		can_dash = true  # Reset can_dash after wall jump
-
-	# While in the air, check for jump height control
-	if is_jumping:
-		if not Input.is_action_pressed("jump"):
-			# Switch to short jump if jump button is released early
-			if velocity.y < SHORT_JUMP_VELOCITY:
-				velocity.y = SHORT_JUMP_VELOCITY  # Apply short jump force
-			is_jumping = false  # End jump when button is released
 
 	# Apply slight movement back towards the wall after wall jump
 	if is_jumping and is_on_wall_only() and Input.get_axis("ui_left", "ui_right") == 0:
@@ -231,32 +223,6 @@ func handle_movement_and_jump(delta):
 	if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
 		velocity.y = min(velocity.y, wall_slide_gravity)
 		# Do not reset can_dash during wall slide
-
-	# Handle dash
-	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
-		start_dash()
-		can_dash = false  # Disable further dashing until reset
-		
-	if attack_buffer_timer > 0:
-		start_attack()
-		attack_buffer_timer = 0  # Reset attack buffer timer after attack
-
-	if Input.is_action_just_pressed("attack"):
-		start_attack()
-
-	# Handle animations
-	if is_on_floor() and not is_attacking:
-		if direction != 0:
-			animated_sprite_2d.play("run")
-		else:
-			animated_sprite_2d.play("default")
-	elif not is_on_floor() and not is_attacking:
-		if velocity.y < 0:
-			animated_sprite_2d.play("jump")
-		elif velocity.y > 0:
-			animated_sprite_2d.play("fall")
-	else:
-		pass
 
 func start_attack():
 	if is_attacking:
