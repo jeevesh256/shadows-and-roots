@@ -24,6 +24,9 @@ func _on_Timer_timeout():
 
 # Collision detection
 func _on_area_entered(area):
-	print(area.name)
 	if area.is_in_group("enemies"):
 		area.queue_free()
+
+func _on_body_entered(body):
+	if body is TileMap:
+		queue_free()

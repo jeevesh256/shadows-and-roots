@@ -332,7 +332,6 @@ func die():
 	animated_sprite_2d.play("death")
 
 func _on_attack_collision_area_entered(area):
-	print(area.name)
 	if area.is_in_group("enemies"):
 		area.animated_sprite_2d.play("death")
 		area.set_deferred("monitoring", false)  # Disable collision detection
