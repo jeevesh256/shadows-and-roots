@@ -1,0 +1,8 @@
+
+[gd_scene load_steps=2 format=2]
+
+[node name="Main" type="Node"]
+[node name="game" type="Node" parent="."]
+script = ExtResource("res://scripts/game.gd")
+
+// ...existing nodes and configurations...

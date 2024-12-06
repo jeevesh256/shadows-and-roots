@@ -53,8 +53,9 @@ var wall_attach_timer = 0.0  # Timer for wall attach delay
 const WALL_JUMP_COOLDOWN = 0.2  # Cooldown time before another wall jump
 var wall_jump_cooldown_timer = 0.0  # Timer for wall jump cooldown
 var is_attacking = false
-
+	
 func _physics_process(delta):
+	var direction = Input.get_axis("ui_left", "ui_right")  # Declare direction variable
 	if not is_attacking:
 		sword_left.disabled = true
 		sword_right.disabled = true
@@ -84,9 +85,25 @@ func _physics_process(delta):
 	else:
 		handle_movement_and_jump(delta)
 		
-	if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
-		velocity.y = min(velocity.y, wall_slide_gravity)
-	
+	if Game.has_ability("wall_jump"):
+		if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
+			velocity.y = min(velocity.y, wall_slide_gravity)
+
+		# Wall jump logic
+		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
+			velocity = Vector2(get_wall_normal().x * WALL_JUMP_PUSHBACK, WALL_JUMP_VELOCITY.y)
+			jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
+			wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
+			can_dash = true  # Reset can_dash after wall jump
+
+		# Apply slight movement back towards the wall after wall jump
+		if is_jumping and is_on_wall_only() and Input.get_axis("ui_left", "ui_right") == 0:
+			velocity.x += get_wall_normal().x * WALL_JUMP_RETURN_FORCE * delta
+
+		# Allow reattaching to the wall after the pushback
+		if wall_attach_timer <= 0 and is_on_wall_only():
+			velocity.x = 0  # Stop horizontal movement to allow reattachment
+
 	if Input.is_action_just_pressed("projectile") and can_shoot_projectile:
 		shoot_projectile()
 
@@ -107,6 +124,27 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
 		start_dash()
 		can_dash = false  # Disable further dashing until reset if not wall sliding
+
+	if attack_buffer_timer > 0:
+		start_attack()
+		attack_buffer_timer = 0  # Reset attack buffer timer after attack
+
+	if Input.is_action_just_pressed("attack"):
+		start_attack()
+
+	# Handle animations
+	if is_on_floor() and not is_attacking:
+		if direction != 0:
+			animated_sprite_2d.play("run")
+		else:
+			animated_sprite_2d.play("default")
+	elif not is_on_floor() and not is_attacking:
+		if velocity.y < 0:
+			animated_sprite_2d.play("jump")
+		elif velocity.y > 0:
+			animated_sprite_2d.play("fall")
+	else:
+		pass
 
 func update_dash_cooldown(delta):
 	if dash_cooldown_remaining > 0:
@@ -180,19 +218,23 @@ func handle_movement_and_jump(delta):
 			is_jumping = false  # End jump when max hold time is reached or button is released
 
 	# Wall jump logic
-	if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
-		velocity = Vector2(get_wall_normal().x * WALL_JUMP_PUSHBACK, WALL_JUMP_VELOCITY.y)
-		jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
-		wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
-		can_dash = true  # Reset can_dash after wall jump
+	if Game.has_ability("wall_jump"):
+		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
+			velocity = Vector2(get_wall_normal().x * WALL_JUMP_PUSHBACK, WALL_JUMP_VELOCITY.y)
+			jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
+			wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
+			can_dash = true  # Reset can_dash after wall jump
 
-	# Apply slight movement back towards the wall after wall jump
-	if is_jumping and is_on_wall_only() and Input.get_axis("ui_left", "ui_right") == 0:
-		velocity.x += get_wall_normal().x * WALL_JUMP_RETURN_FORCE * delta
+		# Apply slight movement back towards the wall after wall jump
+		if is_jumping and is_on_wall_only() and Input.get_axis("ui_left", "ui_right") == 0:
+			velocity.x += get_wall_normal().x * WALL_JUMP_RETURN_FORCE * delta
 
-	# Allow reattaching to the wall after the pushback
-	if wall_attach_timer <= 0 and is_on_wall_only():
-		velocity.x = 0  # Stop horizontal movement to allow reattachment
+		# Allow reattaching to the wall after the pushback
+		if wall_attach_timer <= 0 and is_on_wall_only():
+			velocity.x = 0  # Stop horizontal movement to allow reattachment
+
+		if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
+			velocity.y = min(velocity.y, wall_slide_gravity)
 
 	# Handle dash
 	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
@@ -219,10 +261,6 @@ func handle_movement_and_jump(delta):
 			animated_sprite_2d.play("fall")
 	else:
 		pass
-
-	if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
-		velocity.y = min(velocity.y, wall_slide_gravity)
-		# Do not reset can_dash during wall slide
 
 func start_attack():
 	if is_attacking:
