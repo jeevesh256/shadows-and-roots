@@ -417,4 +417,3 @@ limit_bottom = 40
 
 [node name="skeleton" parent="." instance=ExtResource("3_timp3")]
 position = Vector2(752, -48)
-collision_layer = 2

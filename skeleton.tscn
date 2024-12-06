@@ -60,6 +60,7 @@ height = 26.0
 
 [node name="skeleton" groups=["enemies"] instance=ExtResource("1_7smpo")]
 scale = Vector2(1.4, 1.4)
+collision_layer = 2
 script = ExtResource("2_wooa1")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="0"]

@@ -1,16 +1,16 @@
 extends CharacterBody2D
 
 # Constants
-const JUMP_VELOCITY = -600.0  # Further increased jump velocity for a higher jump
+const JUMP_VELOCITY = -500.0  # Further increased jump velocity for a higher jump
 const DASH_SPEED = 800.0  # Dash speed (fixed)
 const DASH_DURATION = 0.2  # Dash duration (in seconds)
 const DASH_COOLDOWN = 0.5  # Dash cooldown (in seconds)
 const MOVE_SPEED = 300.0  # Movement speed (fixed)
-const GRAVITY = 3000.0  # Increased gravity for a faster fall
+const GRAVITY = 2000.0  # Reduced gravity for a slower fall
 const JUMP_BUFFER_TIME = 0.1  # Time window to buffer jump input
 const ATTACK_BUFFER_TIME = 0.1  # Time window to buffer attack input
-const JUMP_CUT_GRAVITY = 9000.0  # Further increased gravity when jump is cut short
-const JUMP_HOLD_GRAVITY = 2250.0  # Reduced gravity when holding jump for a higher jump
+const JUMP_CUT_GRAVITY = 6000.0  # Reintroduce gravity change when jump is cut short
+const JUMP_HOLD_GRAVITY = 1500.0  # Reduced gravity when holding jump for a higher jump
 
 # Nodes
 @onready var animated_sprite_2d = $AnimatedSprite2D
