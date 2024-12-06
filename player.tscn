@@ -252,12 +252,12 @@ radius = 40.7143
 height = 138.571
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_if26k"]
-radius = 12.1429
-height = 35.7143
+radius = 11.4285
+height = 34.2857
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_lkku7"]
 radius = 12.1429
-height = 51.4286
+height = 40.0
 
 [node name="player" type="CharacterBody2D" groups=["players"]]
 scale = Vector2(1.4, 1.4)

@@ -323,6 +323,8 @@ func shoot_projectile():
 	can_shoot_projectile = true  # Re-enable the ability
 	
 func die():
+	if dead:
+		return  # If already dead, do nothing
 	dead = true
 	velocity = Vector2.ZERO  # Stop all movement
 	set_process(false)  # Disable `_process` and `_physics_process`
@@ -332,8 +334,10 @@ func die():
 func _on_attack_collision_area_entered(area):
 	print(area.name)
 	if area.is_in_group("enemies"):
-		if area.is_in_group("enemies"):
-			area.queue_free()
+		area.animated_sprite_2d.play("death")
+		area.set_deferred("monitoring", false)  # Disable collision detection
+		await area.animated_sprite_2d.animation_finished
+		area.queue_free()
 
 func _on_timer_timeout():
 	sword_left.disabled = true

@@ -1,8 +1,24 @@
-[gd_scene load_steps=12 format=3 uid="uid://cpjvgfjhk3rn2"]
+[gd_scene load_steps=16 format=3 uid="uid://cpjvgfjhk3rn2"]
 
 [ext_resource type="PackedScene" uid="uid://dg30rrycopf4r" path="res://killzone.tscn" id="1_7smpo"]
 [ext_resource type="Texture2D" uid="uid://csvhbukmkrnh" path="res://assets/Skeleton.png" id="1_lj6gd"]
 [ext_resource type="Script" path="res://scripts/skeleton.gd" id="2_wooa1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ujwhc"]
+atlas = ExtResource("1_lj6gd")
+region = Rect2(0, 192, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4853p"]
+atlas = ExtResource("1_lj6gd")
+region = Rect2(32, 192, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hlixi"]
+atlas = ExtResource("1_lj6gd")
+region = Rect2(64, 192, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wkxtl"]
+atlas = ExtResource("1_lj6gd")
+region = Rect2(96, 192, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wtg7x"]
 atlas = ExtResource("1_lj6gd")
@@ -30,6 +46,23 @@ region = Rect2(160, 0, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_iwr8j"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ujwhc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4853p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hlixi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wkxtl")
+}],
+"loop": false,
+"name": &"death",
+"speed": 10.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wtg7x")
@@ -67,6 +100,7 @@ script = ExtResource("2_wooa1")
 texture_filter = 1
 scale = Vector2(1.5, 1.5)
 sprite_frames = SubResource("SpriteFrames_iwr8j")
+autoplay = "default"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." index="1" groups=["enemies"]]
 position = Vector2(1, -3)

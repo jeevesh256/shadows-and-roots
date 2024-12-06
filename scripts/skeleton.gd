@@ -1,5 +1,7 @@
 extends Area2D
 
+@onready var skeleton = $"."
+@onready var animated_sprite_2d = $AnimatedSprite2D
 @onready var player = null  # This will be assigned in _ready()
 const SPEED = 100.0
 
@@ -27,3 +29,4 @@ func _physics_process(delta):
 			var move_vector = direction * min(move_amount, distance)
 			global_position += move_vector
 
+	
