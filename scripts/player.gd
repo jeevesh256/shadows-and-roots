@@ -120,10 +120,11 @@ func _physics_process(delta):
 	if is_on_floor():
 		can_dash = true  # Reset can_dash when on the floor
 
-	# Handle dash
-	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
-		start_dash()
-		can_dash = false  # Disable further dashing until reset if not wall sliding
+	if Game.has_ability("dash"):
+		# Handle dash
+		if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
+			start_dash()
+			can_dash = false  # Disable further dashing until reset if not wall sliding
 
 	if attack_buffer_timer > 0:
 		start_attack()
@@ -236,10 +237,11 @@ func handle_movement_and_jump(delta):
 		if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
 			velocity.y = min(velocity.y, wall_slide_gravity)
 
-	# Handle dash
-	if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
-		start_dash()
-		can_dash = false  # Disable further dashing until reset
+	if Game.has_ability("dash"):
+		# Handle dash
+		if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
+			start_dash()
+			can_dash = false  # Disable further dashing until reset
 
 	if attack_buffer_timer > 0:
 		start_attack()

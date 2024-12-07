@@ -1,7 +1,8 @@
 extends Node2D
 
 var abilities = {
-	"wall_jump": false
+	"wall_jump": false,
+	"dash": false
 }
 
 func _ready():
