@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://bdhfl1aghqi4l"]
+
+[ext_resource type="Script" path="res://scripts/breakable_wall.gd" id="1_4m65v"]
+[ext_resource type="Texture2D" uid="uid://qqb7s3bago1h" path="res://assets/walls.png" id="1_rpdhx"]
+[ext_resource type="Shader" path="res://scripts/bw.gdshader" id="2_esg7x"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7k4s2"]
+shader = ExtResource("2_esg7x")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wkhwu"]
+size = Vector2(18, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_eigu1"]
+size = Vector2(28, 33)
+
+[node name="Breakable_wall" type="StaticBody2D"]
+script = ExtResource("1_4m65v")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_7k4s2")
+texture = ExtResource("1_rpdhx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_wkhwu")
+
+[node name="wall_collision" type="Area2D" parent="."]
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="wall_collision"]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_eigu1")
+
+[connection signal="area_entered" from="wall_collision" to="." method="_on_wall_collision_area_entered"]
