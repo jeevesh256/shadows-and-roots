@@ -13,6 +13,8 @@ var attack_collision_count = 0
 
 func _ready():
 	game = get_tree().root.get_node("game")
+	if Game.has_ability("wall_jump"):
+		treasure_animation.play("opened")  # Play the "opened" animation if the player already has the wall jump ability
 
 func _process(delta):
 	if player_in_treasure_area and not Game.has_ability("wall_jump"):
@@ -23,15 +25,14 @@ func _process(delta):
 			print("you have got the wall jump ability")
 			Game.obtain_ability("wall_jump")
 			treasure.queue_free()
-			
 
 func _on_ghost_spawn_body_entered(body):
 	if body.name == "player" and not has_spawned:
 		has_spawned = true
 		for i in range(5):
 			var enemy_instance = enemy_scene.instantiate()
-			var random_offset = Vector2(randi() % 800 - 400, randi() % 1500 - 750)
-			enemy_instance.position = body.position + random_offset
+			var random_offset = Vector2(randi() % 800 - 400, randi() % 800 - 400)  # Offset around the point (1563, -1032)
+			enemy_instance.position = Vector2(1563, -1032) + random_offset
 			get_parent().add_child(enemy_instance)
 
 func _on_treasure_body_entered(body):
@@ -47,8 +48,6 @@ func _on_wall_collision_area_entered(area):
 		attack_collision_count += 1
 		if attack_collision_count >= 3:
 			breakable_wall.queue_free()
-
-
 
 func _on_hf_body_entered(body):
 	if body.name == "player":

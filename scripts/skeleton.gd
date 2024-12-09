@@ -16,7 +16,7 @@ func _ready():
 	player = get_tree().get_nodes_in_group("players")[0]
 
 func _physics_process(delta):
-	if player:
+	if player and is_instance_valid(player):
 		# Calculate direction towards the player
 		var direction = (player.global_position - global_position).normalized()
 		
@@ -29,4 +29,4 @@ func _physics_process(delta):
 			var move_vector = direction * min(move_amount, distance)
 			global_position += move_vector
 
-	
+

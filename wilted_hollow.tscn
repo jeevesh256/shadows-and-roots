@@ -10606,13 +10606,21 @@ animations = [{
 "loop": false,
 "name": &"open",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_202pn")
+}],
+"loop": false,
+"name": &"opened",
+"speed": 10.0
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4kie2"]
 size = Vector2(25, 20)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_87p4y"]
-size = Vector2(201, 84)
+size = Vector2(201, 63)
 
 [node name="wilted-hollow" type="Node2D"]
 script = ExtResource("1_wujuq")
@@ -10692,11 +10700,14 @@ text = "You have acquired wall jump ability"
 [node name="hf" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hf"]
-position = Vector2(2140.5, -1278)
+position = Vector2(2140.5, -1288.5)
 shape = SubResource("RectangleShape2D_87p4y")
 
 [node name="default_marker" type="Marker2D" parent="."]
 position = Vector2(992, -1232)
+
+[node name="from_hf" type="Marker2D" parent="."]
+position = Vector2(2137, -1202)
 
 [connection signal="body_entered" from="ghost_spawn" to="." method="_on_ghost_spawn_body_entered"]
 [connection signal="body_entered" from="treasure" to="." method="_on_treasure_body_entered"]

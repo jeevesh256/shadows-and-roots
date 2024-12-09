@@ -6,7 +6,8 @@ var player = null
 # Abilities dictionary
 var abilities = {
 	"wall_jump": false,
-	"dash": true
+	"dash": true,
+	"projectile": true
 }
 
 func _ready():

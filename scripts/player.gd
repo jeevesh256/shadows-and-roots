@@ -104,7 +104,7 @@ func _physics_process(delta):
 		if wall_attach_timer <= 0 and is_on_wall_only():
 			velocity.x = 0  # Stop horizontal movement to allow reattachment
 
-	if Input.is_action_just_pressed("projectile") and can_shoot_projectile:
+	if Game.has_ability("projectile") and Input.is_action_just_pressed("projectile") and can_shoot_projectile:
 		shoot_projectile()
 
 	# Apply movement
