@@ -10696,7 +10696,7 @@ position = Vector2(2140.5, -1278)
 shape = SubResource("RectangleShape2D_87p4y")
 
 [node name="default_marker" type="Marker2D" parent="."]
-position = Vector2(1583, -831)
+position = Vector2(992, -1232)
 
 [connection signal="body_entered" from="ghost_spawn" to="." method="_on_ghost_spawn_body_entered"]
 [connection signal="body_entered" from="treasure" to="." method="_on_treasure_body_entered"]

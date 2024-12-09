@@ -48,3 +48,8 @@ func _on_wall_collision_area_entered(area):
 		if attack_collision_count >= 3:
 			breakable_wall.queue_free()
 
+
+
+func _on_hf_body_entered(body):
+	if body.name == "player":
+		Game.change_scene("res://haunted-farmlands.tscn", "player_from_wh")
