@@ -35,3 +35,4 @@ func _process(delta: float) -> void:
 
 		# Apply the velocity to the camera's position
 		global_position += velocity
+

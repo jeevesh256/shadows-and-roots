@@ -1,16 +1,17 @@
 extends CharacterBody2D
 
 # Constants
-const JUMP_VELOCITY = -500.0  # Further increased jump velocity for a higher jump
+const JUMP_VELOCITY = -500.0  # Increased jump velocity for a higher jump
 const DASH_SPEED = 800.0  # Dash speed (fixed)
 const DASH_DURATION = 0.2  # Dash duration (in seconds)
 const DASH_COOLDOWN = 0.5  # Dash cooldown (in seconds)
 const MOVE_SPEED = 300.0  # Movement speed (fixed)
-const GRAVITY = 2000.0  # Reduced gravity for a slower fall
+const GRAVITY = 2500.0  # Increased gravity for a faster fall
 const JUMP_BUFFER_TIME = 0.1  # Time window to buffer jump input
 const ATTACK_BUFFER_TIME = 0.1  # Time window to buffer attack input
-const JUMP_CUT_GRAVITY = 6000.0  # Reintroduce gravity change when jump is cut short
-const JUMP_HOLD_GRAVITY = 1500.0  # Reduced gravity when holding jump for a higher jump
+const JUMP_CUT_GRAVITY = 7000.0  # Increased gravity change when jump is cut short
+const JUMP_HOLD_GRAVITY = 2000.0  # Increased gravity when holding jump for a higher jump
+var health = 3
 
 # Nodes
 @onready var animated_sprite_2d = $AnimatedSprite2D
@@ -41,7 +42,7 @@ var can_dash = true  # State variable to track if the player can dash
 # Jump variables
 var is_jumping = false
 var jump_time = 0.0  # Time the jump button is held down
-const JUMP_HOLD_TIME = 0.1  # Reduced max time to hold the jump for a higher jump
+const JUMP_HOLD_TIME = 0.2  # Increased max time to hold the jump for a higher jump
 var jump_buffer_timer = 0.0  # Timer for jump buffering
 var jump_pressed = false  # Track if jump was pressed
 
@@ -53,6 +54,7 @@ var wall_attach_timer = 0.0  # Timer for wall attach delay
 const WALL_JUMP_COOLDOWN = 0.2  # Cooldown time before another wall jump
 var wall_jump_cooldown_timer = 0.0  # Timer for wall jump cooldown
 var is_attacking = false
+var attacks = 0
 	
 func _physics_process(delta):
 	var direction = Input.get_axis("ui_left", "ui_right")  # Declare direction variable
@@ -385,3 +387,18 @@ func _on_timer_timeout():
 	sword_down.disabled = true
 	is_attacking = false
 
+
+
+func _on_attack_collision_body_entered(body):
+	if body.is_in_group("enemies"):
+		attacks+=1
+		if attacks == 10:
+			body.animated_sprite_2d.play("death")
+			body.queue_free()
+			attacks = 0
+
+func damage(point):
+	if health>0:
+		health -= point
+	else:
+		die()

@@ -30,3 +30,5 @@ func _on_area_entered(area):
 func _on_body_entered(body):
 	if body is TileMap:
 		queue_free()
+	elif body.is_in_group("enemies"):
+		body.queue_free()

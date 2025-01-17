@@ -21,7 +21,7 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_7k4s2")
 texture = ExtResource("1_rpdhx")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="static_shape" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_wkhwu")
 
 [node name="wall_collision" type="Area2D" parent="."]
