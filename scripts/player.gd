@@ -1,16 +1,20 @@
 extends CharacterBody2D
 
 # Constants
-const JUMP_VELOCITY = -500.0  # Increased jump velocity for a higher jump
-const DASH_SPEED = 800.0  # Dash speed (fixed)
-const DASH_DURATION = 0.2  # Dash duration (in seconds)
-const DASH_COOLDOWN = 0.5  # Dash cooldown (in seconds)
-const MOVE_SPEED = 300.0  # Movement speed (fixed)
-const GRAVITY = 2500.0  # Increased gravity for a faster fall
-const JUMP_BUFFER_TIME = 0.1  # Time window to buffer jump input
-const ATTACK_BUFFER_TIME = 0.1  # Time window to buffer attack input
-const JUMP_CUT_GRAVITY = 7000.0  # Increased gravity change when jump is cut short
-const JUMP_HOLD_GRAVITY = 2000.0  # Increased gravity when holding jump for a higher jump
+const JUMP_VELOCITY = -550.0  # Changed from -500.0 for higher jumps
+const DASH_SPEED = 800.0
+const DASH_DURATION = 0.2
+const DASH_COOLDOWN = 0.5
+const MOVE_SPEED = 250.0
+const GRAVITY = 1800.0  # Increased from 1100 for less floatiness
+const JUMP_FALL_GRAVITY = 1400.0  # New constant for falling during jump
+const TERMINAL_VELOCITY = 700.0  # Increased from 500 for faster falling
+const JUMP_BUFFER_TIME = 0.1
+const ATTACK_BUFFER_TIME = 0.1
+const JUMP_CUT_GRAVITY = 4000.0  # Increased for snappier jump cuts
+const JUMP_HOLD_GRAVITY = 1300.0  # Reduced from 1500.0 for slightly higher jumps
+const AIR_ACCELERATION = 2000.0  # Increased for better air control
+const AIR_DECELERATION = 1500.0  # Increased for less floatiness
 var health = 3
 
 # Nodes
@@ -46,9 +50,10 @@ const JUMP_HOLD_TIME = 0.2  # Increased max time to hold the jump for a higher j
 var jump_buffer_timer = 0.0  # Timer for jump buffering
 var jump_pressed = false  # Track if jump was pressed
 
-const WALL_JUMP_VELOCITY = Vector2(1000, -400)  # Increased vertical jump power
-const WALL_JUMP_PUSHBACK = 800  # Increased horizontal pushback when wall jumping
-const WALL_JUMP_RETURN_FORCE = 50  # Reduced force to move back towards the wall
+# Wall jump constants - adjusted for better feel
+const WALL_JUMP_VELOCITY = Vector2(300, -550)  # Less horizontal force (300), higher vertical (-550)
+const WALL_JUMP_PUSHBACK = 200.0  # Significantly reduced pushback
+const WALL_JUMP_RETURN_FORCE = 15.0  # Reduced return force for smoother wall attachment
 const WALL_ATTACH_DELAY = 0.1  # Delay before reattaching to the wall
 var wall_attach_timer = 0.0  # Timer for wall attach delay
 const WALL_JUMP_COOLDOWN = 0.2  # Cooldown time before another wall jump
@@ -78,8 +83,10 @@ func _physics_process(delta):
 	if not is_dashing and not is_on_ground:
 		if is_jumping and not Input.is_action_pressed("jump"):
 			velocity.y += JUMP_CUT_GRAVITY * delta  # Apply jump cut gravity if jump is cut short
-		else:
-			velocity.y += GRAVITY * delta  # Apply normal gravity
+		elif velocity.y > 0:  # If falling
+			velocity.y += GRAVITY * delta  # Natural falling
+		else:  # If moving upward or at peak of jump
+			velocity.y += JUMP_FALL_GRAVITY * delta  # Gentler fall during jump
 
 	# Dash or normal movement
 	if is_dashing:
@@ -88,8 +95,12 @@ func _physics_process(delta):
 		handle_movement_and_jump(delta)
 		
 	if Game.has_ability("wall_jump"):
+		# Only allow wall slide on vertical walls by checking wall normal
 		if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
-			velocity.y = min(velocity.y, wall_slide_gravity)
+			var wall_normal = get_wall_normal()
+			# Check if wall is vertical (x component is -1 or 1, y component is 0)
+			if abs(wall_normal.x) > 0.9 and abs(wall_normal.y) < 0.1:
+				velocity.y = min(velocity.y, wall_slide_gravity)
 
 		# Wall jump logic
 		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
@@ -196,11 +207,34 @@ func handle_landing():
 
 func handle_movement_and_jump(delta):
 	var direction = Input.get_axis("ui_left", "ui_right")
-	if direction != 0:
-		velocity.x = direction * MOVE_SPEED
-		animated_sprite_2d.flip_h = direction < 0
+	
+	# Different acceleration in air vs ground
+	if is_on_floor():
+		if direction != 0:
+			velocity.x = direction * MOVE_SPEED
+		else:
+			velocity.x = move_toward(velocity.x, 0, MOVE_SPEED)
 	else:
-		velocity.x = move_toward(velocity.x, 0, MOVE_SPEED)
+		# Air control
+		if direction != 0:
+			velocity.x = move_toward(velocity.x, direction * MOVE_SPEED, AIR_ACCELERATION * delta)
+		else:
+			velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION * delta)
+	
+	if direction != 0:
+		animated_sprite_2d.flip_h = direction < 0
+
+	# Apply gravity with terminal velocity
+	if not is_dashing and not is_on_ground:
+		if is_jumping and not Input.is_action_pressed("jump"):
+			velocity.y += JUMP_CUT_GRAVITY * delta
+		elif velocity.y > 0:  # If falling
+			velocity.y += GRAVITY * delta  # Natural falling
+		else:  # If moving upward or at peak of jump
+			velocity.y += JUMP_FALL_GRAVITY * delta  # Gentler fall during jump
+		
+		# Limit falling speed
+		velocity.y = min(velocity.y, TERMINAL_VELOCITY)
 
 	# Buffer jump input
 	if jump_pressed and (is_on_floor() or coyote_timer > 0):
@@ -392,7 +426,7 @@ func _on_timer_timeout():
 func _on_attack_collision_body_entered(body):
 	if body.is_in_group("enemies"):
 		attacks+=1
-		if attacks == 10:
+		if attacks == 15:
 			body.animated_sprite_2d.play("death")
 			body.queue_free()
 			attacks = 0

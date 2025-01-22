@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://da1pr72kvpqyo"]
+
+[ext_resource type="Script" path="res://scripts/thorn.gd" id="1_8tv5a"]
+[ext_resource type="Texture2D" uid="uid://b11ycmfglmptx" path="res://assets/kenney_foliage-sprites/PNG/Flat/sprite_0027.png" id="1_kmlte"]
+
+[node name="thorn" type="Area2D"]
+collision_mask = 3
+script = ExtResource("1_8tv5a")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(0.232568, 0.197814, 0.147235, 1)
+texture = ExtResource("1_kmlte")
+
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+modulate = Color(0.232568, 0.197814, 0.147235, 1)
+position = Vector2(216, 0)
+texture = ExtResource("1_kmlte")
+
+[node name="Sprite2D3" type="Sprite2D" parent="."]
+modulate = Color(0.232568, 0.197814, 0.147235, 1)
+position = Vector2(432, 0)
+texture = ExtResource("1_kmlte")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(0, -512, 112, 288, 216, -512, 320, 288, 432, -504, 528, 224, 544, 512, -120, 512, 0, -504, 0, -520)
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

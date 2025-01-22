@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://0oruka5b1b0t"]
+
+[ext_resource type="Texture2D" uid="uid://qqb7s3bago1h" path="res://assets/walls.png" id="1_cju1y"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p5ri8"]
+size = Vector2(106, 18)
+
+[node name="AnimatableBody2D" type="AnimatableBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(32, 0)
+rotation = -1.5708
+scale = Vector2(1.05825, -1.76605)
+texture = ExtResource("1_cju1y")
+
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(80, -1.49012e-08)
+rotation = 1.5708
+scale = Vector2(1.05825, -1.76605)
+texture = ExtResource("1_cju1y")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(56, 0)
+shape = SubResource("RectangleShape2D_p5ri8")
