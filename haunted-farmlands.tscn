@@ -11018,7 +11018,7 @@ position = Vector2(1432, 24)
 shape = SubResource("RectangleShape2D_2rgde")
 
 [node name="player_from_wh" type="Marker2D" parent="."]
-position = Vector2(2806, -28)
+position = Vector2(2859, -29)
 
 [node name="default_marker" type="Marker2D" parent="."]
 position = Vector2(87, -152)

@@ -6,16 +6,24 @@ const DASH_SPEED = 800.0
 const DASH_DURATION = 0.2
 const DASH_COOLDOWN = 0.5
 const MOVE_SPEED = 250.0
-const GRAVITY = 1800.0  # Increased from 1100 for less floatiness
-const JUMP_FALL_GRAVITY = 1400.0  # New constant for falling during jump
-const TERMINAL_VELOCITY = 700.0  # Increased from 500 for faster falling
+const GRAVITY = 1400.0  # Reduced from 1800.0 for more floatiness
+const JUMP_FALL_GRAVITY = 1100.0  # Reduced from 1400.0 for more floaty falls
+const TERMINAL_VELOCITY = 600.0  # Reduced from 700.0 for slower max fall speed
 const JUMP_BUFFER_TIME = 0.1
 const ATTACK_BUFFER_TIME = 0.1
 const JUMP_CUT_GRAVITY = 4000.0  # Increased for snappier jump cuts
 const JUMP_HOLD_GRAVITY = 1300.0  # Reduced from 1500.0 for slightly higher jumps
 const AIR_ACCELERATION = 2000.0  # Increased for better air control
 const AIR_DECELERATION = 1500.0  # Increased for less floatiness
-var health = 3
+const POGO_BOUNCE_FORCE = -700.0  # Increased from -600 for higher bounce
+const PUSHBACK_FORCE = 150.0  # Reduced from 300 for gentler pushback
+const PUSHBACK_DURATION = 0.1  # Slightly reduced pushback duration
+const WALL_SLIDE_SPEED = 50.0  # Initial slower wall slide speed
+const WALL_SLIDE_MAX_SPEED = 200.0  # Maximum wall slide speed
+const WALL_SLIDE_ACCELERATION = 800.0  # Faster acceleration while sliding
+const WALL_SLIDE_GRAVITY = 400.0  # Custom gravity while wall sliding
+var pushback_timer = 0.0  # Track pushback duration
+var health = 5
 
 # Nodes
 @onready var animated_sprite_2d = $AnimatedSprite2D
@@ -39,7 +47,6 @@ var coyote_timer = 0.0  # Timer for coyote time
 var is_on_ground = false
 var can_shoot_projectile = true
 var dead=false
-var wall_slide_gravity = 300
 var attack_buffer_timer = 0.0  # Timer for attack buffering
 var can_dash = true  # State variable to track if the player can dash
 
@@ -50,8 +57,12 @@ const JUMP_HOLD_TIME = 0.2  # Increased max time to hold the jump for a higher j
 var jump_buffer_timer = 0.0  # Timer for jump buffering
 var jump_pressed = false  # Track if jump was pressed
 
-# Wall jump constants - adjusted for better feel
-const WALL_JUMP_VELOCITY = Vector2(300, -550)  # Less horizontal force (300), higher vertical (-550)
+# Wall jump constants - adjusted for variable height
+const WALL_JUMP_VELOCITY = Vector2(300, -400)  # Reduced initial vertical boost
+const WALL_JUMP_HOLD_VELOCITY = -600  # Maximum vertical velocity when holding jump
+const WALL_JUMP_HOLD_TIME = 0.2  # How long you can hold to gain height
+var wall_jump_hold_timer = 0.0
+var is_wall_jumping = false
 const WALL_JUMP_PUSHBACK = 200.0  # Significantly reduced pushback
 const WALL_JUMP_RETURN_FORCE = 15.0  # Reduced return force for smoother wall attachment
 const WALL_ATTACH_DELAY = 0.1  # Delay before reattaching to the wall
@@ -63,6 +74,8 @@ var attacks = 0
 	
 func _physics_process(delta):
 	var direction = Input.get_axis("ui_left", "ui_right")  # Declare direction variable
+	if pushback_timer > 0:
+		pushback_timer -= delta
 	if not is_attacking:
 		sword_left.disabled = true
 		sword_right.disabled = true
@@ -91,31 +104,17 @@ func _physics_process(delta):
 	# Dash or normal movement
 	if is_dashing:
 		handle_dash(delta)
+		move_and_slide()
+		return  # Exit early if dashing, preventing all other actions
 	else:
 		handle_movement_and_jump(delta)
 		
 	if Game.has_ability("wall_jump"):
-		# Only allow wall slide on vertical walls by checking wall normal
-		if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
-			var wall_normal = get_wall_normal()
-			# Check if wall is vertical (x component is -1 or 1, y component is 0)
-			if abs(wall_normal.x) > 0.9 and abs(wall_normal.y) < 0.1:
-				velocity.y = min(velocity.y, wall_slide_gravity)
-
-		# Wall jump logic
-		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
+		# Simplified wall jump logic - only handle the jump, no sliding
+		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only():
 			velocity = Vector2(get_wall_normal().x * WALL_JUMP_PUSHBACK, WALL_JUMP_VELOCITY.y)
-			jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
-			wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
-			can_dash = true  # Reset can_dash after wall jump
-
-		# Apply slight movement back towards the wall after wall jump
-		if is_jumping and is_on_wall_only() and Input.get_axis("ui_left", "ui_right") == 0:
-			velocity.x += get_wall_normal().x * WALL_JUMP_RETURN_FORCE * delta
-
-		# Allow reattaching to the wall after the pushback
-		if wall_attach_timer <= 0 and is_on_wall_only():
-			velocity.x = 0  # Stop horizontal movement to allow reattachment
+			jump_buffer_timer = 0
+			can_dash = true
 
 	if Game.has_ability("projectile") and Input.is_action_just_pressed("projectile") and can_shoot_projectile:
 		shoot_projectile()
@@ -135,9 +134,9 @@ func _physics_process(delta):
 
 	if Game.has_ability("dash"):
 		# Handle dash
-		if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and (can_dash or is_on_wall()):
+		if Input.is_action_just_pressed("dash") and dash_cooldown_remaining <= 0 and can_dash:
 			start_dash()
-			can_dash = false  # Disable further dashing until reset if not wall sliding
+			can_dash = false  # Disable further dashing until reset
 
 	if attack_buffer_timer > 0:
 		start_attack()
@@ -146,8 +145,10 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("attack"):
 		start_attack()
 
-	# Handle animations
-	if is_on_floor() and not is_attacking:
+	# Handle animations - modify the animation handling section
+	if is_dashing:
+		animated_sprite_2d.play("run")  # Always run animation while dashing
+	elif is_on_floor() and not is_attacking:
 		if direction != 0:
 			animated_sprite_2d.play("run")
 		else:
@@ -157,8 +158,6 @@ func _physics_process(delta):
 			animated_sprite_2d.play("jump")
 		elif velocity.y > 0:
 			animated_sprite_2d.play("fall")
-	else:
-		pass
 
 func update_dash_cooldown(delta):
 	if dash_cooldown_remaining > 0:
@@ -199,6 +198,7 @@ func handle_landing():
 
 	# Reset jump state if we land
 	if is_on_floor_now:
+		is_wall_jumping = false
 		is_jumping = false  # Reset jump state when landing
 		can_dash = true  # Reset can_dash when landing
 
@@ -206,27 +206,45 @@ func handle_landing():
 	is_on_ground = is_on_floor_now
 
 func handle_movement_and_jump(delta):
+	if is_dashing:  # Prevent movement control while dashing
+		return
 	var direction = Input.get_axis("ui_left", "ui_right")
 	
-	# Different acceleration in air vs ground
-	if is_on_floor():
-		if direction != 0:
-			velocity.x = direction * MOVE_SPEED
+	# Only allow normal movement if not in pushback
+	if pushback_timer <= 0:
+		# Different acceleration in air vs ground
+		if is_on_floor():
+			if direction != 0:
+				velocity.x = direction * MOVE_SPEED
+			else:
+				velocity.x = move_toward(velocity.x, 0, MOVE_SPEED)
 		else:
-			velocity.x = move_toward(velocity.x, 0, MOVE_SPEED)
-	else:
-		# Air control
-		if direction != 0:
-			velocity.x = move_toward(velocity.x, direction * MOVE_SPEED, AIR_ACCELERATION * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION * delta)
+			# Air control
+			if direction != 0:
+				velocity.x = move_toward(velocity.x, direction * MOVE_SPEED, AIR_ACCELERATION * delta)
+			else:
+				velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION * delta)
 	
 	if direction != 0:
 		animated_sprite_2d.flip_h = direction < 0
 
-	# Apply gravity with terminal velocity
+	# Apply gravity with terminal velocity and wall slide
 	if not is_dashing and not is_on_ground:
-		if is_jumping and not Input.is_action_pressed("jump"):
+		if is_wall_sliding():
+			 # More nuanced wall slide physics
+			if velocity.y < 0:  # If moving upward, use normal gravity
+				velocity.y += GRAVITY * delta
+			else:
+				# Start with a gentle slide and accelerate
+				var target_speed = WALL_SLIDE_SPEED
+				if Input.is_action_pressed("ui_down"):
+					target_speed = WALL_SLIDE_MAX_SPEED  # Faster slide when pressing down
+				
+				# Gradually increase fall speed
+				velocity.y = move_toward(velocity.y, target_speed, WALL_SLIDE_ACCELERATION * delta)
+				velocity.y += WALL_SLIDE_GRAVITY * delta
+				velocity.y = min(velocity.y, WALL_SLIDE_MAX_SPEED)
+		elif is_jumping and not Input.is_action_pressed("jump"):
 			velocity.y += JUMP_CUT_GRAVITY * delta
 		elif velocity.y > 0:  # If falling
 			velocity.y += GRAVITY * delta  # Natural falling
@@ -254,24 +272,22 @@ func handle_movement_and_jump(delta):
 		else:
 			is_jumping = false  # End jump when max hold time is reached or button is released
 
-	# Wall jump logic
+	# Wall jump logic with variable height
 	if Game.has_ability("wall_jump"):
-		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only() and wall_attach_timer <= 0:
+		if jump_buffer_timer > 0 and not is_jumping and is_on_wall_only():
 			velocity = Vector2(get_wall_normal().x * WALL_JUMP_PUSHBACK, WALL_JUMP_VELOCITY.y)
-			jump_buffer_timer = 0  # Reset jump buffer timer after wall jump
-			wall_attach_timer = WALL_ATTACH_DELAY  # Start wall attach delay timer
-			can_dash = true  # Reset can_dash after wall jump
-
-		# Apply slight movement back towards the wall after wall jump
-		if is_jumping and is_on_wall_only() and Input.get_axis("ui_left", "ui_right") == 0:
-			velocity.x += get_wall_normal().x * WALL_JUMP_RETURN_FORCE * delta
-
-		# Allow reattaching to the wall after the pushback
-		if wall_attach_timer <= 0 and is_on_wall_only():
-			velocity.x = 0  # Stop horizontal movement to allow reattachment
-
-		if is_on_wall() and Input.get_axis("ui_left", "ui_right"):
-			velocity.y = min(velocity.y, wall_slide_gravity)
+			is_wall_jumping = true
+			wall_jump_hold_timer = 0
+			jump_buffer_timer = 0
+			can_dash = true  # Reset dash specifically after wall jump
+		
+		# Variable wall jump height control
+		if is_wall_jumping:
+			wall_jump_hold_timer += delta
+			if wall_jump_hold_timer < WALL_JUMP_HOLD_TIME and Input.is_action_pressed("jump"):
+				velocity.y = move_toward(velocity.y, WALL_JUMP_HOLD_VELOCITY, 2000 * delta)
+			else:
+				is_wall_jumping = false
 
 	if Game.has_ability("dash"):
 		# Handle dash
@@ -300,8 +316,22 @@ func handle_movement_and_jump(delta):
 	else:
 		pass
 
+func is_wall_sliding():
+	if not Game.has_ability("wall_jump"):
+		return false
+	
+	if not is_on_wall_only():
+		return false
+		
+	# Check if pressing towards the wall
+	var direction = Input.get_axis("ui_left", "ui_right")
+	var wall_normal = get_wall_normal()
+	
+	# If pressing in the opposite direction of the wall normal
+	return direction * wall_normal.x < 0
+
 func start_attack():
-	if is_attacking:
+	if is_attacking or is_dashing:  # Prevent attacking while dashing
 		return  # Ignore input if already attacking
 		
 	is_attacking = true  # Mark as attacking
@@ -324,19 +354,25 @@ func start_dash():
 	is_dashing = true
 	dash_time_remaining = DASH_DURATION
 	dash_cooldown_remaining = DASH_COOLDOWN
+	animated_sprite_2d.play("run")
 
-	# Reset vertical velocity to prevent gravity from affecting the dash
 	velocity.y = 0
 
-	# Determine dash direction and velocity
-	if animated_sprite_2d.flip_h:
-		velocity.x = -DASH_SPEED  # Dash left
-		show_dash_effect("left")
+	var dash_direction = 0
+	
+	# If wall sliding, dash in the direction of the wall normal (away from wall)
+	if is_wall_sliding():
+		dash_direction = get_wall_normal().x
+		animated_sprite_2d.flip_h = dash_direction < 0  # Flip sprite to face dash direction
 	else:
-		velocity.x = DASH_SPEED  # Dash right
-		show_dash_effect("right")
-
-	# Ensure can_dash is false after starting a dash
+		# Normal dash direction logic
+		dash_direction = Input.get_axis("ui_left", "ui_right")
+		if dash_direction == 0:
+			dash_direction = -1 if animated_sprite_2d.flip_h else 1
+	
+	velocity.x = dash_direction * DASH_SPEED
+	show_dash_effect("left" if dash_direction < 0 else "right")
+	
 	can_dash = false
 
 func handle_dash(delta):
@@ -381,6 +417,8 @@ func spawn_dust():
 		get_parent().add_child(dust_instance)
 		
 func shoot_projectile():
+	if is_dashing:  # Prevent shooting while dashing
+		return
 	can_shoot_projectile = false  # Disable further shooting for now
 	var projectile = PROJECTILE.instantiate()  # Create the Vengeful Spirit
 	get_parent().add_child(projectile)  # Add the projectile to the scene
@@ -410,9 +448,37 @@ func die():
 func _on_attack_collision_area_entered(area):
 	if area.is_in_group("enemies"):
 		area.animated_sprite_2d.play("death")
-		area.set_deferred("monitoring", false)  # Disable collision detection
+		area.set_deferred("monitoring", false)
+		
+		handle_pogo_or_pushback()
 		await area.animated_sprite_2d.animation_finished
 		area.queue_free()
+	elif area.is_in_group("can_pogo") and sword_down.disabled == false:
+		handle_pogo_or_pushback()
+
+func _on_attack_collision_body_entered(body):
+	if body.is_in_group("enemies"):
+		attacks += 1
+		if attacks == 15:
+			body.animated_sprite_2d.play("death")
+			body.queue_free()
+			attacks = 0
+		
+		handle_pogo_or_pushback()
+	elif body.is_in_group("can_pogo") and sword_down.disabled == false:
+		handle_pogo_or_pushback()
+
+# Add this new helper function
+func handle_pogo_or_pushback():
+	if sword_down.disabled == false:  # If down attacking (pogo)
+		velocity.y = POGO_BOUNCE_FORCE
+		var horizontal_input = Input.get_axis("ui_left", "ui_right")
+		if horizontal_input != 0:
+			velocity.x = horizontal_input * MOVE_SPEED * 0.8
+	else:  # For all other attacks
+		var direction = -1 if animated_sprite_2d.flip_h else 1
+		velocity.x = -PUSHBACK_FORCE * direction
+		pushback_timer = PUSHBACK_DURATION
 
 func _on_timer_timeout():
 	sword_left.disabled = true
@@ -420,16 +486,6 @@ func _on_timer_timeout():
 	sword_up.disabled = true
 	sword_down.disabled = true
 	is_attacking = false
-
-
-
-func _on_attack_collision_body_entered(body):
-	if body.is_in_group("enemies"):
-		attacks+=1
-		if attacks == 15:
-			body.animated_sprite_2d.play("death")
-			body.queue_free()
-			attacks = 0
 
 func damage(point):
 	if health>0:
