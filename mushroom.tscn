@@ -1,0 +1,76 @@
+[gd_scene load_steps=11 format=3 uid="uid://c4wrot4qa3qlf"]
+
+[ext_resource type="Texture2D" uid="uid://juyfxu6b61vo" path="res://assets/Mushroom/Mushroom with VFX/Mushroom-Idle.png" id="1_e1i4q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hpqcv"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(0, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ijmpt"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(80, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_orco0"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(160, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ho3px"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(240, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cb5qc"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(320, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6yjh2"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(400, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y8kqy"]
+atlas = ExtResource("1_e1i4q")
+region = Rect2(480, 0, 80, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2ycyi"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hpqcv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ijmpt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_orco0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ho3px")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cb5qc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6yjh2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y8kqy")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_t2wnk"]
+radius = 13.0
+
+[node name="mushroom" type="CharacterBody2D" groups=["can_pogo"]]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_2ycyi")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.0642959
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 16)
+shape = SubResource("CapsuleShape2D_t2wnk")

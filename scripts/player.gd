@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # Constants
-const JUMP_VELOCITY = -550.0  # Changed from -500.0 for higher jumps
+const JUMP_VELOCITY = -450.0  # Slightly stronger initial jump
 const DASH_SPEED = 800.0
 const DASH_DURATION = 0.2
 const DASH_COOLDOWN = 0.5
@@ -13,8 +13,9 @@ const JUMP_BUFFER_TIME = 0.1
 const ATTACK_BUFFER_TIME = 0.1
 const JUMP_CUT_GRAVITY = 4000.0  # Increased for snappier jump cuts
 const JUMP_HOLD_GRAVITY = 1300.0  # Reduced from 1500.0 for slightly higher jumps
-const AIR_ACCELERATION = 2000.0  # Increased for better air control
-const AIR_DECELERATION = 1500.0  # Increased for less floatiness
+const AIR_ACCELERATION = 3000.0  # Increased for much better air control
+const AIR_DECELERATION = 2000.0  # Increased for more responsive stopping
+const AIR_MOVE_SPEED = 230.0  # New constant for air movement speed
 const POGO_BOUNCE_FORCE = -700.0  # Increased from -600 for higher bounce
 const PUSHBACK_FORCE = 150.0  # Reduced from 300 for gentler pushback
 const PUSHBACK_DURATION = 0.1  # Slightly reduced pushback duration
@@ -22,6 +23,9 @@ const WALL_SLIDE_SPEED = 50.0  # Initial slower wall slide speed
 const WALL_SLIDE_MAX_SPEED = 200.0  # Maximum wall slide speed
 const WALL_SLIDE_ACCELERATION = 800.0  # Faster acceleration while sliding
 const WALL_SLIDE_GRAVITY = 400.0  # Custom gravity while wall sliding
+const JUMP_HOLD_TIME = 0.45  # Slightly longer hold time for more control
+const JUMP_ACCELERATION = -1500.0  # Much stronger upward acceleration
+const JUMP_MAX_VELOCITY = -850.0  # Higher maximum jump velocity
 var pushback_timer = 0.0  # Track pushback duration
 var health = 5
 
@@ -53,7 +57,6 @@ var can_dash = true  # State variable to track if the player can dash
 # Jump variables
 var is_jumping = false
 var jump_time = 0.0  # Time the jump button is held down
-const JUMP_HOLD_TIME = 0.2  # Increased max time to hold the jump for a higher jump
 var jump_buffer_timer = 0.0  # Timer for jump buffering
 var jump_pressed = false  # Track if jump was pressed
 
@@ -219,9 +222,13 @@ func handle_movement_and_jump(delta):
 			else:
 				velocity.x = move_toward(velocity.x, 0, MOVE_SPEED)
 		else:
-			# Air control
+			 # Enhanced air control
 			if direction != 0:
-				velocity.x = move_toward(velocity.x, direction * MOVE_SPEED, AIR_ACCELERATION * delta)
+				# Faster acceleration in air while maintaining max speed
+				velocity.x = move_toward(velocity.x, direction * AIR_MOVE_SPEED, AIR_ACCELERATION * delta)
+				# Additional micro-adjustments during fall
+				if velocity.y > 0:  # If falling
+					velocity.x = move_toward(velocity.x, direction * AIR_MOVE_SPEED, AIR_ACCELERATION * 0.5 * delta)
 			else:
 				velocity.x = move_toward(velocity.x, 0, AIR_DECELERATION * delta)
 	
@@ -256,21 +263,23 @@ func handle_movement_and_jump(delta):
 
 	# Buffer jump input
 	if jump_pressed and (is_on_floor() or coyote_timer > 0):
-		velocity.y = JUMP_VELOCITY  # Apply initial jump force
-		is_jumping = true  # Mark as jumping
-		jump_time = 0  # Reset jump time when jump is pressed
-		coyote_timer = 0  # Reset coyote timer after a jump
-		jump_buffer_timer = 0  # Reset jump buffer timer after jump
-		jump_pressed = false  # Reset jump pressed state after jump
-		can_dash = true  # Reset can_dash after jump
+		velocity.y = JUMP_VELOCITY  # Initial smaller jump force
+		is_jumping = true
+		jump_time = 0
+		coyote_timer = 0
+		jump_buffer_timer = 0
+		jump_pressed = false
+		can_dash = true
 
 	# Gradual jump height increase
 	if is_jumping:
-		jump_time += delta  # Increment jump time
+		jump_time += delta
 		if jump_time < JUMP_HOLD_TIME and Input.is_action_pressed("jump"):
-			velocity.y = JUMP_VELOCITY  # Continue applying initial jump force
+			# Apply stronger upward force while holding jump
+			velocity.y += JUMP_ACCELERATION * delta
+			velocity.y = max(velocity.y, JUMP_MAX_VELOCITY)  # Cap at higher maximum velocity
 		else:
-			is_jumping = false  # End jump when max hold time is reached or button is released
+			is_jumping = false
 
 	# Wall jump logic with variable height
 	if Game.has_ability("wall_jump"):
@@ -464,7 +473,7 @@ func _on_attack_collision_body_entered(body):
 			body.queue_free()
 			attacks = 0
 		
-		handle_pogo_or_pushback()
+		handle_pogo_or_pushback()		
 	elif body.is_in_group("can_pogo") and sword_down.disabled == false:
 		handle_pogo_or_pushback()
 

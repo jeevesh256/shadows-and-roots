@@ -5,7 +5,7 @@ var player = null
 
 # Abilities dictionary
 var abilities = {
-	"wall_jump": true,
+	"wall_jump": false,
 	"dash": true,
 	"projectile": true
 }
