@@ -141,10 +141,6 @@ func _physics_process(delta):
 		3:  # Final phase
 			final_phase(delta)
 
-	# Check movement direction and flip sprite accordingly
-	if velocity.x != 0:
-		animated_sprite_2d.flip_h = velocity.x > 0
-
 	move_and_slide()
 
 func switch_attack_phase():
@@ -255,11 +251,15 @@ func execute_dash():
 	is_dashing = true
 	dash_timer = dash_cooldown
 	
+	# Store original flip state
+	var original_flip = animated_sprite_2d.flip_h
+	
 	if is_dashing:
 		animated_sprite_2d.play("dash")
 
 	# Set horizontal velocity for dash
 	var direction = sign(player.global_position.x - global_position.x)
+	animated_sprite_2d.flip_h = direction > 0
 	velocity.x = direction * dash_speed
 	velocity.y = 0  # Keep vertical velocity at 0 during dash
 	
@@ -267,6 +267,7 @@ func execute_dash():
 	get_tree().create_timer(dash_duration).timeout.connect(func():
 		animated_sprite_2d.play("idle")
 		animated_sprite_2d.modulate = Color(1, 1, 1)
+		animated_sprite_2d.flip_h = original_flip  # Restore original flip state
 		velocity = Vector2.ZERO
 		is_dashing = false
 		get_tree().create_timer(post_dash_recovery).timeout.connect(func(): can_attack = true)
