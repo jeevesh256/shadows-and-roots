@@ -472,8 +472,11 @@ func _on_attack_collision_body_entered(body):
 			body.animated_sprite_2d.play("death")
 			body.queue_free()
 			attacks = 0
-		
+	
+	if body.is_in_group("mushroom"):
+		get_health(1)
 		handle_pogo_or_pushback()		
+
 	elif body.is_in_group("can_pogo") and sword_down.disabled == false:
 		handle_pogo_or_pushback()
 
@@ -501,3 +504,8 @@ func damage(point):
 		health -= point
 	else:
 		die()
+		
+func get_health(point):
+	if health < 5:
+		health += point
+		print("+1 health")

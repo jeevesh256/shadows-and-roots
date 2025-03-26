@@ -1,6 +1,20 @@
-[gd_scene load_steps=11 format=3 uid="uid://c4wrot4qa3qlf"]
+[gd_scene load_steps=17 format=3 uid="uid://c4wrot4qa3qlf"]
 
 [ext_resource type="Texture2D" uid="uid://juyfxu6b61vo" path="res://assets/Mushroom/Mushroom with VFX/Mushroom-Idle.png" id="1_e1i4q"]
+[ext_resource type="Script" path="res://scripts/mushroom.gd" id="1_ymc8s"]
+[ext_resource type="Texture2D" uid="uid://bc5llk3y44cq7" path="res://assets/Mushroom/Mushroom with VFX/Mushroom-Hit.png" id="2_v0yg0"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tdqb6"]
+atlas = ExtResource("2_v0yg0")
+region = Rect2(80, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5cadj"]
+atlas = ExtResource("2_v0yg0")
+region = Rect2(160, 0, 80, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b1rvk"]
+atlas = ExtResource("2_v0yg0")
+region = Rect2(240, 0, 80, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hpqcv"]
 atlas = ExtResource("1_e1i4q")
@@ -34,6 +48,20 @@ region = Rect2(480, 0, 80, 64)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_tdqb6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5cadj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b1rvk")
+}],
+"loop": true,
+"name": &"hit",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_hpqcv")
 }, {
 "duration": 1.0,
@@ -62,15 +90,29 @@ animations = [{
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_t2wnk"]
 radius = 13.0
 
-[node name="mushroom" type="CharacterBody2D" groups=["can_pogo"]]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_80sri"]
+radius = 17.0
+height = 38.0
+
+[node name="mushroom" type="CharacterBody2D" groups=["can_pogo", "mushroom"]]
+script = ExtResource("1_ymc8s")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_2ycyi")
 animation = &"idle"
 autoplay = "idle"
-frame_progress = 0.0642959
+flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 16)
 shape = SubResource("CapsuleShape2D_t2wnk")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_mask = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0, 15)
+shape = SubResource("CapsuleShape2D_80sri")
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]

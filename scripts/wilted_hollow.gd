@@ -3,6 +3,7 @@ extends Node2D
 const enemy_scene = preload("res://skeleton.tscn")
 const BOSS_1 = preload("res://boss_1.tscn")
 var has_spawned = false
+var has_spawned2 = false
 var player_in_treasure_wj_area = false
 var player_in_treasure_dash_area = false
 var game
@@ -101,3 +102,11 @@ func _on_treasure_dash_body_exited(body):
 func _on_area_2d_body_entered(body):
 	if body.name == "player": 
 		tile_map.set_layer_enabled(3,false)
+
+
+func _on_ghost_spawn_2_body_entered(body):
+	if body.name == "player" and not has_spawned2:
+		has_spawned2 = true
+		var enemy_instance = enemy_scene.instantiate()
+		enemy_instance.position = Vector2(1982, -849)  # Fixed position for single skeleton
+		get_parent().add_child(enemy_instance)
