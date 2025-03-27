@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://deanm84vtc5qj"]
+[gd_scene load_steps=37 format=3 uid="uid://deanm84vtc5qj"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_f7gke"]
 [ext_resource type="Script" path="res://scripts/wilted_hollow.gd" id="1_wujuq"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://0oruka5b1b0t" path="res://platform.tscn" id="12_cmn82"]
 [ext_resource type="PackedScene" uid="uid://da1pr72kvpqyo" path="res://thorn.tscn" id="13_83u46"]
 [ext_resource type="PackedScene" uid="uid://c4wrot4qa3qlf" path="res://mushroom.tscn" id="14_j03hx"]
+[ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="15_d67lp"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8q3lu"]
 shader = ExtResource("1_f7gke")
@@ -11061,6 +11062,27 @@ position = Vector2(1973, -602.5)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ghost_spawn_2"]
 position = Vector2(-1, -0.5)
 shape = SubResource("RectangleShape2D_lfxg0")
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1042.0
+offset_top = -969.0
+offset_right = 1042.0
+offset_bottom = -969.0
+scale = Vector2(2, 2)
+
+[node name="hearts_container" parent="UI/Control" instance=ExtResource("15_d67lp")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -106.0
+offset_right = 0.0
+grow_horizontal = 0
 
 [connection signal="body_entered" from="ghost_spawn" to="." method="_on_ghost_spawn_body_entered"]
 [connection signal="body_entered" from="treasure_wj" to="." method="_on_treasure_body_entered"]

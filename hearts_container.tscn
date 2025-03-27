@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://762wf2nqo5k7"]
+
+[ext_resource type="PackedScene" uid="uid://l58kcy2g2lew" path="res://heart.tscn" id="1_mkvk3"]
+
+[node name="hearts_container" type="HBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="heart" parent="." instance=ExtResource("1_mkvk3")]
+layout_mode = 2
+
+[node name="heart2" parent="." instance=ExtResource("1_mkvk3")]
+layout_mode = 2
+
+[node name="heart3" parent="." instance=ExtResource("1_mkvk3")]
+layout_mode = 2
+
+[node name="heart4" parent="." instance=ExtResource("1_mkvk3")]
+layout_mode = 2
+
+[node name="heart5" parent="." instance=ExtResource("1_mkvk3")]
+layout_mode = 2

@@ -21,6 +21,9 @@ var boss_spawned = false  # Add this new variable
 @onready var boss_mkr = $boss_area/boss_mkr
 @onready var dash_ability = $dash_ability
 @onready var tile_map = $TileMap
+@onready var health_ui = $UI/Control
+@onready var camera_2d = $player/Marker_drag/Camera2D
+
 
 func _ready():
 	game = get_tree().root.get_node("game")
@@ -53,6 +56,9 @@ func _process(delta):
 			print("you have got the dash ability")
 			Game.obtain_ability("dash")
 			treasure2.queue_free()
+	health_ui.position = Vector2(230, 23)  # Adjust (x, y) for padding if needed
+
+
 
 func _on_ghost_spawn_body_entered(body):
 	if body.name == "player" and not has_spawned:

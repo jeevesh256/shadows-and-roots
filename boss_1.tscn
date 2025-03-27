@@ -229,7 +229,7 @@ height = 28.9934
 radius = 19.0
 height = 46.0
 
-[node name="boss1" type="CharacterBody2D" groups=["enemies"]]
+[node name="boss1" type="CharacterBody2D" groups=["can_pogo", "enemies"]]
 script = ExtResource("1_2cm6l")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
