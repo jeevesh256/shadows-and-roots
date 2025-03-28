@@ -8,6 +8,9 @@ func _ready():
 
 func _on_area_2d_area_entered(area):
 	if area.is_in_group("player_attack") and not is_hit:
+		var attack_position = area.global_position
+		# Flip sprite based on attack direction
+		animated_sprite_2d.flip_h = attack_position.x > global_position.x
 		handle_hit()
 
 func handle_hit():
