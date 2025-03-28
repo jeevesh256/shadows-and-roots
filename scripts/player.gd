@@ -76,8 +76,8 @@ var is_attacking = false
 var attacks = 0
 
 var invincible = false  
-var iframe_duration = 0.8  # Short I-frame duration
-var blink_speed = 0.5  # Faster blinking
+var iframe_duration = 1  # Short I-frame duration
+var blink_speed = 0.1  # Faster blinking
 	
 func _physics_process(delta):
 	var direction = Input.get_axis("ui_left", "ui_right")  # Declare direction variable
@@ -504,30 +504,32 @@ func _on_timer_timeout():
 	is_attacking = false
 
 func damage(point):
-	if health>0:
+	if invincible:
+		return
+		
+	if health > 0:
 		health -= point
 		start_invincibility()
 	else:
 		die()
-		
-func get_health(point):
-	if health < 5:
-		health += point
-		print("+1 health")
-		
-		
+
 func start_invincibility():
 	invincible = true
-	collision_layer = 0  # Disable collision
+	collision_layer = 0
 	get_tree().create_timer(iframe_duration).timeout.connect(end_invincibility)
 	blink_sprite()
 
 func blink_sprite():
 	if invincible:
-		animated_sprite_2d.self_modulate = Color.BLACK if animated_sprite_2d.self_modulate == Color.WHITE else Color.WHITE
+		animated_sprite_2d.self_modulate = Color.NAVY_BLUE if animated_sprite_2d.self_modulate == Color.WHITE else Color.WHITE
 		get_tree().create_timer(blink_speed).timeout.connect(blink_sprite)
+
+func get_health(point):
+	if health < 5:
+		health += point
+		print("+1 health")
 
 func end_invincibility():
 	invincible = false
-	animated_sprite_2d.self_modulate = Color.WHITE  # Restore normal color
-	collision_layer = 1  # Re-enable collision
+	animated_sprite_2d.self_modulate = Color.WHITE  # Reset sprite color
+	collision_layer = 1  # Reset collision layer to original value
