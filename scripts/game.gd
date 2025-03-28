@@ -3,6 +3,8 @@ extends Node2D
 # Reference to the player
 var player = null
 
+signal health_changed(current: int, maximum: int)
+
 # Abilities dictionary
 var abilities = {
 	"wall_jump": false,
@@ -22,6 +24,9 @@ func _ready():
 
 	# Connect the "node_removed" signal properly
 	get_tree().connect("node_removed", Callable(self, "_on_node_removed"))
+	
+	# Initial health UI update
+	emit_signal("health_changed", current_health, max_health)
 
 func _on_node_removed(node):
 	if node == self:
@@ -39,6 +44,7 @@ func has_ability(ability_name: String) -> bool:
 # Function to modify health
 func modify_health(amount: int):
 	current_health = clamp(current_health + amount, 0, max_health)
+	emit_signal("health_changed", current_health, max_health)
 	if current_health <= 0 and not is_dead:
 		is_dead = true
 		if is_instance_valid(player):

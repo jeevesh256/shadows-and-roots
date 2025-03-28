@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://deanm84vtc5qj"]
+[gd_scene load_steps=38 format=3 uid="uid://deanm84vtc5qj"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_f7gke"]
 [ext_resource type="Script" path="res://scripts/wilted_hollow.gd" id="1_wujuq"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://0oruka5b1b0t" path="res://platform.tscn" id="12_cmn82"]
 [ext_resource type="PackedScene" uid="uid://da1pr72kvpqyo" path="res://thorn.tscn" id="13_83u46"]
 [ext_resource type="PackedScene" uid="uid://c4wrot4qa3qlf" path="res://mushroom.tscn" id="14_j03hx"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="15_amxy3"]
 [ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="15_d67lp"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8q3lu"]
@@ -11065,6 +11066,7 @@ shape = SubResource("RectangleShape2D_lfxg0")
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 0
+script = ExtResource("15_amxy3")
 
 [node name="Control" type="Control" parent="UI"]
 layout_mode = 3
