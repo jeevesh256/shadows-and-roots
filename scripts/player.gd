@@ -27,7 +27,6 @@ const JUMP_HOLD_TIME = 0.45  # Slightly longer hold time for more control
 const JUMP_ACCELERATION = -1500.0  # Much stronger upward acceleration
 const JUMP_MAX_VELOCITY = -850.0  # Higher maximum jump velocity
 var pushback_timer = 0.0  # Track pushback duration
-var health = 5
 
 # Nodes
 @onready var animated_sprite_2d = $AnimatedSprite2D
@@ -79,6 +78,10 @@ var invincible = false
 var iframe_duration = 1  # Short I-frame duration
 var blink_speed = 0.1  # Faster blinking
 	
+func _ready():
+	Game.player = self
+	animated_sprite_2d.animation_finished.connect(_on_animation_finished)
+
 func _physics_process(delta):
 	var direction = Input.get_axis("ui_left", "ui_right")  # Declare direction variable
 	if pushback_timer > 0:
@@ -454,9 +457,13 @@ func die():
 		return  # If already dead, do nothing
 	dead = true
 	velocity = Vector2.ZERO  # Stop all movement
-	set_process(false)  # Disable `_process` and `_physics_process`
-	set_physics_process(false)  # Specifically disable physics processing
+	set_process_input(false)  # Disable input processing
+	set_physics_process(false)  # Disable physics processing
 	animated_sprite_2d.play("death")
+
+func _on_animation_finished():
+	if animated_sprite_2d.animation == "death":
+		pass
 
 func _on_attack_collision_area_entered(area):
 	if area.is_in_group("enemies"):
@@ -506,14 +513,13 @@ func _on_timer_timeout():
 func damage(point):
 	if invincible:
 		return
-		
-	if health > 0:
-		health -= point
-		start_invincibility()
-	else:
-		die()
+	
+	Game.modify_health(-point)
+	start_invincibility()
 
 func start_invincibility():
+	if dead:
+		return
 	invincible = true
 	collision_layer = 0
 	get_tree().create_timer(iframe_duration).timeout.connect(end_invincibility)
@@ -525,9 +531,8 @@ func blink_sprite():
 		get_tree().create_timer(blink_speed).timeout.connect(blink_sprite)
 
 func get_health(point):
-	if health < 5:
-		health += point
-		print("+1 health")
+	Game.modify_health(point)
+	print("+1 health")
 
 func end_invincibility():
 	invincible = false

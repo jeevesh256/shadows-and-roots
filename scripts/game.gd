@@ -10,6 +10,11 @@ var abilities = {
 	"projectile": true
 }
 
+# Health system
+var max_health = 5
+var current_health = 5
+var is_dead = false
+
 func _ready():
 	# Ensure this node persists across scenes
 	set_process_unhandled_input(true)
@@ -30,6 +35,37 @@ func obtain_ability(ability_name: String):
 # Check if a specific ability is unlocked
 func has_ability(ability_name: String) -> bool:
 	return abilities.get(ability_name, false)
+
+# Function to modify health
+func modify_health(amount: int):
+	current_health = clamp(current_health + amount, 0, max_health)
+	if current_health <= 0 and not is_dead:
+		is_dead = true
+		if is_instance_valid(player):
+			player.die()
+		else:
+			push_error("Player reference is invalid during death sequence")
+
+# Function to handle player death
+func die():
+	if is_dead:
+		return
+	is_dead = true
+	if is_instance_valid(player):
+		player.die()
+
+func respawn():
+	is_dead = false
+	current_health = max_health
+	if is_instance_valid(player):
+		player.respawn()
+
+func get_current_health() -> int:
+	return current_health
+
+func reset_health():
+	current_health = max_health
+	is_dead = false
 
 # Handle quitting the game
 func _on_quit_requested():

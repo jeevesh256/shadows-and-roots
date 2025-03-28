@@ -326,7 +326,6 @@ func spawn_projectile(direction):
 
 func _on_area_body_entered(body):
 	if body.is_in_group("players"):
-		print("die")
 		if body.has_method("damage"):
 			body.damage(1)
 			if current_attack_phase == 1:  # Aerial projectile phase
