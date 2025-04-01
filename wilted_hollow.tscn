@@ -11088,6 +11088,7 @@ position = Vector2(189, -724)
 
 [connection signal="area_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_area_entered"]
 [connection signal="body_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_body_entered"]
+[connection signal="body_exited" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_body_exited"]
 [connection signal="body_entered" from="ghost_spawn" to="." method="_on_ghost_spawn_body_entered"]
 [connection signal="body_entered" from="treasure_wj" to="." method="_on_treasure_body_entered"]
 [connection signal="body_exited" from="treasure_wj" to="." method="_on_treasure_body_exited"]
