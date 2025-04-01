@@ -17,6 +17,8 @@ var max_health = 5
 var current_health = 5
 var is_dead = false
 
+var current_respawn_point = null
+
 func _ready():
 	# Ensure this node persists across scenes
 	set_process_unhandled_input(true)
@@ -48,9 +50,10 @@ func modify_health(amount: int):
 	if current_health <= 0 and not is_dead:
 		is_dead = true
 		if is_instance_valid(player):
+			# Make sure player dies before respawning
 			player.die()
-		else:
-			push_error("Player reference is invalid during death sequence")
+			if current_respawn_point == null:
+				push_error("No respawn point set!")
 
 # Function to handle player death
 func die():
@@ -60,10 +63,20 @@ func die():
 	if is_instance_valid(player):
 		player.die()
 
+func register_respawn_point(point):
+	current_respawn_point = point
+
 func respawn():
+	if not current_respawn_point:
+		push_error("Cannot respawn - no respawn point set")
+		return
+		
 	is_dead = false
 	current_health = max_health
+	emit_signal("health_changed", current_health, max_health)
+	
 	if is_instance_valid(player):
+		player.global_position = current_respawn_point.global_position
 		player.respawn()
 
 func get_current_health() -> int:

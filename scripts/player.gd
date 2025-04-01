@@ -454,16 +454,23 @@ func shoot_projectile():
 	
 func die():
 	if dead:
-		return  # If already dead, do nothing
+		return
 	dead = true
-	velocity = Vector2.ZERO  # Stop all movement
-	set_process_input(false)  # Disable input processing
-	set_physics_process(false)  # Disable physics processing
+	velocity = Vector2.ZERO
+	set_process_input(false)
+	set_physics_process(false)
 	animated_sprite_2d.play("death")
+	# Will trigger _on_animation_finished when done
+
+func respawn():
+	dead = false
+	set_process_input(true)
+	set_physics_process(true)
+	animated_sprite_2d.play("default")
 
 func _on_animation_finished():
 	if animated_sprite_2d.animation == "death":
-		pass
+		Game.respawn()  # Trigger respawn after death animation
 
 func _on_attack_collision_area_entered(area):
 	if area.is_in_group("enemies"):
@@ -484,10 +491,9 @@ func _on_attack_collision_body_entered(body):
 			body.queue_free()
 			attacks = 0
 	
-	if body.is_in_group("mushroom"):
+	elif body.is_in_group("mushroom"):
 		get_health(1)
-		handle_pogo_or_pushback()		
-
+		handle_pogo_or_pushback()
 	elif body.is_in_group("can_pogo") and sword_down.disabled == false:
 		handle_pogo_or_pushback()
 
@@ -531,8 +537,8 @@ func blink_sprite():
 		get_tree().create_timer(blink_speed).timeout.connect(blink_sprite)
 
 func get_health(point):
-	Game.modify_health(point)
-	print("+1 health")
+	if Game.get_current_health() < Game.max_health:  # Only heal if not at max health
+		Game.modify_health(point)
 
 func end_invincibility():
 	invincible = false
