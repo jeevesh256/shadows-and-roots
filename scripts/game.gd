@@ -75,9 +75,28 @@ func respawn():
 	current_health = max_health
 	emit_signal("health_changed", current_health, max_health)
 	
-	if is_instance_valid(player):
+	# Get the current scene's file path
+	var current_scene_path = get_tree().current_scene.scene_file_path
+	
+	# Clear all enemies before changing scene
+	clear_enemies()
+	
+	# Change back to the same scene
+	get_tree().change_scene_to_file(current_scene_path)
+	
+	# Wait until scene is loaded
+	await get_tree().process_frame
+	
+	# Find the new player instance
+	player = get_tree().current_scene.get_node_or_null("player")
+	if player:
 		player.global_position = current_respawn_point.global_position
-		player.respawn()
+
+func clear_enemies():
+	# Get all enemies in the scene
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	for enemy in enemies:
+		enemy.queue_free()
 
 func get_current_health() -> int:
 	return current_health
@@ -93,6 +112,12 @@ func _on_quit_requested():
 # Function to change scenes and spawn player at marker position
 func change_scene(scene_path: String, marker_name: String):
 	var new_scene = load(scene_path).instantiate()
+	
+	# Store current health before scene change
+	var stored_health = current_health
+
+	# Clear enemies before changing scene
+	clear_enemies()
 
 	# Safely clean up the previous scene
 	if get_tree().current_scene:
@@ -101,6 +126,10 @@ func change_scene(scene_path: String, marker_name: String):
 	# Add the new scene to the root and set it as the current scene
 	get_tree().root.add_child(new_scene)
 	get_tree().current_scene = new_scene
+
+	# Restore health state and emit signal
+	current_health = stored_health
+	emit_signal("health_changed", current_health, max_health)
 
 	# Reassign the player reference in the new scene
 	player = new_scene.get_node_or_null("player")

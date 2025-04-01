@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://b1a0s2w0gtc4w"]
+[gd_scene load_steps=38 format=3 uid="uid://b1a0s2w0gtc4w"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_2ylln"]
 [ext_resource type="Texture2D" uid="uid://dynk6oncr6t0f" path="res://assets/Cute_Fantasy_Free/Outdoor decoration/Outdoor_Decor_Free.png" id="1_72ukd"]
@@ -19,6 +19,8 @@
 [ext_resource type="Script" path="res://scripts/camera_drag.gd" id="15_11dxd"]
 [ext_resource type="Script" path="res://scripts/well.gd" id="16_a87q8"]
 [ext_resource type="Script" path="res://scripts/to_wh.gd" id="19_3i4mx"]
+[ext_resource type="PackedScene" uid="uid://c4wrot4qa3qlf" path="res://mushroom.tscn" id="20_bco8t"]
+[ext_resource type="PackedScene" uid="uid://cpjvgfjhk3rn2" path="res://skeleton.tscn" id="21_rqvrb"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ahe3r"]
 shader = ExtResource("1_2ylln")
@@ -11029,6 +11031,12 @@ script = ExtResource("19_3i4mx")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="to_wh"]
 position = Vector2(2870, 116)
 shape = SubResource("RectangleShape2D_cmgc1")
+
+[node name="mushroom" parent="." instance=ExtResource("20_bco8t")]
+position = Vector2(2389, -262)
+
+[node name="skeleton" parent="mushroom" instance=ExtResource("21_rqvrb")]
+position = Vector2(1000, 130)
 
 [connection signal="body_entered" from="well" to="well" method="_on_body_entered"]
 [connection signal="body_entered" from="to_wh" to="to_wh" method="_on_body_entered"]
