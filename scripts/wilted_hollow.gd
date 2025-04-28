@@ -4,8 +4,6 @@ const enemy_scene = preload("res://skeleton.tscn")
 const BOSS_1 = preload("res://boss_1.tscn")
 var has_spawned = false
 var has_spawned2 = false
-var player_in_treasure_wj_area = false
-var player_in_treasure_dash_area = false
 var game
 var attack_collision_count = 0
 var boss_spawned = false  # Add this new variable
@@ -40,25 +38,25 @@ func _ready():
 		treasure_animation2.play("opened")
 
 func _process(delta):
-	if player_in_treasure_wj_area and not Game.has_ability("wall_jump"):
-		if Input.is_action_just_pressed("ui_down") or Input.is_action_just_pressed("ui_up"):
-			wall_jump_ability.show()
-			treasure_animation1.play("open")
-			await treasure_animation1.animation_finished
-			print("you have got the wall jump ability")
-			Game.obtain_ability("wall_jump")
-			treasure1.queue_free()
-	if player_in_treasure_dash_area and not Game.has_ability("dash"):
-		if Input.is_action_just_pressed("ui_down") or Input.is_action_just_pressed("ui_up"):
-			dash_ability.show()
-			treasure_animation2.play("open")
-			await treasure_animation2.animation_finished
-			print("you have got the dash ability")
-			Game.obtain_ability("dash")
-			treasure2.queue_free()
-	health_ui.position = Vector2(230, 23)  # Adjust (x, y) for padding if needed
+	health_ui.position = Vector2(230, 23)
 
+func _on_treasure_wj_area_entered(area):
+	if area.name == "attack_collision" and not Game.has_ability("wall_jump"):
+		wall_jump_ability.show()
+		treasure_animation1.play("open")
+		await treasure_animation1.animation_finished
+		print("you have got the wall jump ability")
+		Game.obtain_ability("wall_jump")
+		treasure1.queue_free()
 
+func _on_treasure_dash_area_entered(area):
+	if area.name == "attack_collision" and not Game.has_ability("dash"):
+		dash_ability.show()
+		treasure_animation2.play("open")
+		await treasure_animation2.animation_finished
+		print("you have got the dash ability")
+		Game.obtain_ability("dash")
+		treasure2.queue_free()
 
 func _on_ghost_spawn_body_entered(body):
 	if body.name == "player" and not has_spawned:
@@ -66,14 +64,6 @@ func _on_ghost_spawn_body_entered(body):
 		var enemy_instance = enemy_scene.instantiate()
 		enemy_instance.position = Vector2(1500, -920)  # Fixed position for single skeleton
 		get_parent().add_child(enemy_instance)
-
-func _on_treasure_body_entered(body):
-	if body.name == "player":
-		player_in_treasure_wj_area = true
-
-func _on_treasure_body_exited(body):
-	if body.name == "player":
-		player_in_treasure_wj_area = false
 
 func _on_hf_body_entered(body):
 	if body.name == "player":
@@ -95,15 +85,6 @@ func _on_boss_area_body_entered(body):
 		var boss = BOSS_1.instantiate()
 		boss.position = boss_mkr.position
 		get_parent().add_child(boss)
-
-func _on_treasure_dash_body_entered(body):
-	if body.name == "player":
-		player_in_treasure_dash_area = true
-		
-func _on_treasure_dash_body_exited(body):
-	if body.name == "player":
-		player_in_treasure_dash_area = false
-
 
 func _on_area_2d_body_entered(body):
 	if body.name == "player": 

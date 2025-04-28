@@ -10872,6 +10872,7 @@ rotation = 1.5708
 shape = SubResource("RectangleShape2D_pq5h1")
 
 [node name="treasure_wj" type="Area2D" parent="."]
+collision_mask = 3
 
 [node name="treasure_animation" type="AnimatedSprite2D" parent="treasure_wj"]
 texture_filter = 1
@@ -10886,6 +10887,7 @@ shape = SubResource("RectangleShape2D_4kie2")
 
 [node name="treasure_dash" type="Area2D" parent="."]
 position = Vector2(-1522, 25)
+collision_mask = 3
 
 [node name="treasure_animation" type="AnimatedSprite2D" parent="treasure_dash"]
 texture_filter = 1
@@ -11138,10 +11140,10 @@ autoplay = "move"
 [connection signal="body_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_body_entered"]
 [connection signal="body_exited" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_body_exited"]
 [connection signal="body_entered" from="ghost_spawn" to="." method="_on_ghost_spawn_body_entered"]
-[connection signal="body_entered" from="treasure_wj" to="." method="_on_treasure_body_entered"]
-[connection signal="body_exited" from="treasure_wj" to="." method="_on_treasure_body_exited"]
-[connection signal="body_entered" from="treasure_dash" to="." method="_on_treasure_dash_body_entered"]
-[connection signal="body_exited" from="treasure_dash" to="." method="_on_treasure_dash_body_exited"]
+[connection signal="area_entered" from="treasure_wj" to="." method="_on_treasure_wj_area_entered"]
+[connection signal="area_exited" from="treasure_wj" to="." method="_on_treasure_wj_area_exited"]
+[connection signal="area_entered" from="treasure_dash" to="." method="_on_treasure_dash_area_entered"]
+[connection signal="area_exited" from="treasure_dash" to="." method="_on_treasure_dash_area_exited"]
 [connection signal="body_entered" from="hf" to="." method="_on_hf_body_entered"]
 [connection signal="body_entered" from="boss_area" to="." method="_on_boss_area_body_entered"]
 [connection signal="body_entered" from="show_hidden/Area2D" to="." method="_on_area_2d_body_entered"]
