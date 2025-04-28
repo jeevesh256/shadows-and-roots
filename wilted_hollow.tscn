@@ -10908,10 +10908,10 @@ text = "You have acquired wall jump ability"
 
 [node name="dash_ability" type="Label" parent="."]
 visible = false
-offset_left = 1839.0
-offset_top = -646.0
-offset_right = 2114.0
-offset_bottom = -623.0
+offset_left = 32.0
+offset_top = -792.0
+offset_right = 307.0
+offset_bottom = -769.0
 scale = Vector2(0.638094, 0.966855)
 text = "You have acquired dash ability"
 
