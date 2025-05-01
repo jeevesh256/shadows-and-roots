@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://b1a0s2w0gtc4w"]
+[gd_scene load_steps=40 format=3 uid="uid://b1a0s2w0gtc4w"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_2ylln"]
 [ext_resource type="Texture2D" uid="uid://dynk6oncr6t0f" path="res://assets/Cute_Fantasy_Free/Outdoor decoration/Outdoor_Decor_Free.png" id="1_72ukd"]
@@ -20,6 +20,8 @@
 [ext_resource type="Script" path="res://scripts/well.gd" id="16_a87q8"]
 [ext_resource type="Script" path="res://scripts/to_wh.gd" id="19_3i4mx"]
 [ext_resource type="PackedScene" uid="uid://c4wrot4qa3qlf" path="res://mushroom.tscn" id="20_bco8t"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="21_grd45"]
+[ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="22_sxa26"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ahe3r"]
 shader = ExtResource("1_2ylln")
@@ -11046,6 +11048,29 @@ shape = SubResource("RectangleShape2D_d3bp2")
 [node name="from_home" type="Marker2D" parent="."]
 position = Vector2(799, -40)
 
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 0
+script = ExtResource("21_grd45")
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1087.0
+offset_top = -184.0
+offset_right = 1087.0
+offset_bottom = -184.0
+scale = Vector2(2, 2)
+
+[node name="hearts_container" parent="UI/Control" instance=ExtResource("22_sxa26")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -106.0
+offset_right = 0.0
+grow_horizontal = 0
+
 [connection signal="body_entered" from="well" to="well" method="_on_body_entered"]
 [connection signal="body_entered" from="to_wh" to="to_wh" method="_on_body_entered"]
 [connection signal="body_entered" from="to_home" to="." method="_on_to_home_body_entered"]
+[connection signal="body_exited" from="to_home" to="." method="_on_to_home_body_exited"]

@@ -3,6 +3,7 @@ extends Node2D
 # Reference to the player
 var player = null
 
+@onready var health_ui = $UI/Control
 signal health_changed(current: int, maximum: int)
 
 # Abilities dictionary
@@ -18,6 +19,8 @@ var current_health = 5
 var is_dead = false
 
 var current_respawn_point = null
+
+var in_home_area = false
 
 func _ready():
 	# Ensure this node persists across scenes
@@ -150,7 +153,19 @@ func change_scene(scene_path: String, marker_name: String):
 	else:
 		print("Spawn marker not found: " + marker_name)
 
+func is_vertical_input() -> bool:
+	return Input.is_action_pressed("ui_up") or Input.is_action_pressed("ui_down")
+
+func _process(delta):
+	if health_ui:
+		health_ui.position = Vector2(230, 23)
+	if in_home_area and is_vertical_input():
+		change_scene("res://home.tscn","player_spawn")
 
 func _on_to_home_body_entered(body):
 	if body.name == "player":
-		change_scene("res://home.tscn","player_spawn")
+		in_home_area = true
+
+func _on_to_home_body_exited(body):
+	if body.name == "player":
+		in_home_area = false

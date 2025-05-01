@@ -17,8 +17,8 @@
 [ext_resource type="PackedScene" uid="uid://0oruka5b1b0t" path="res://platform.tscn" id="12_cmn82"]
 [ext_resource type="PackedScene" uid="uid://da1pr72kvpqyo" path="res://thorn.tscn" id="13_83u46"]
 [ext_resource type="PackedScene" uid="uid://c4wrot4qa3qlf" path="res://mushroom.tscn" id="14_j03hx"]
-[ext_resource type="Script" path="res://scripts/UI.gd" id="15_amxy3"]
-[ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="15_d67lp"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="19_wof52"]
+[ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="20_eua8a"]
 [ext_resource type="PackedScene" uid="uid://xk8kaksxqp8r" path="res://slime.tscn" id="20_h6qwd"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7k4s2"]
@@ -10997,28 +10997,6 @@ position = Vector2(1973, -602.5)
 position = Vector2(-1, -0.5)
 shape = SubResource("RectangleShape2D_lfxg0")
 
-[node name="UI" type="CanvasLayer" parent="."]
-layer = 0
-script = ExtResource("15_amxy3")
-
-[node name="Control" type="Control" parent="UI"]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 1042.0
-offset_top = -969.0
-offset_right = 1042.0
-offset_bottom = -969.0
-scale = Vector2(2, 2)
-
-[node name="hearts_container" parent="UI/Control" instance=ExtResource("15_d67lp")]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -106.0
-offset_right = 0.0
-grow_horizontal = 0
-
 [node name="thorns" type="Node" parent="."]
 
 [node name="thorn" parent="thorns" instance=ExtResource("13_83u46")]
@@ -11135,6 +11113,28 @@ libraries = {
 "": SubResource("AnimationLibrary_8mds1")
 }
 autoplay = "move"
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 0
+script = ExtResource("19_wof52")
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1087.0
+offset_top = -184.0
+offset_right = 1087.0
+offset_bottom = -184.0
+scale = Vector2(2, 2)
+
+[node name="hearts_container" parent="UI/Control" instance=ExtResource("20_eua8a")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -106.0
+offset_right = 0.0
+grow_horizontal = 0
 
 [connection signal="area_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_area_entered"]
 [connection signal="body_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_body_entered"]
