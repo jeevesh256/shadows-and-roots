@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://deanm84vtc5qj"]
+[gd_scene load_steps=52 format=3 uid="uid://deanm84vtc5qj"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_f7gke"]
 [ext_resource type="Script" path="res://scripts/wilted_hollow.gd" id="1_wujuq"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://scripts/UI.gd" id="19_wof52"]
 [ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="20_eua8a"]
 [ext_resource type="PackedScene" uid="uid://xk8kaksxqp8r" path="res://slime.tscn" id="20_h6qwd"]
+[ext_resource type="PackedScene" uid="uid://bmiqcd23e753j" path="res://spike.tscn" id="21_baabm"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7k4s2"]
 shader = ExtResource("1_f7gke")
@@ -11121,10 +11122,10 @@ script = ExtResource("19_wof52")
 [node name="Control" type="Control" parent="UI"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 1087.0
-offset_top = -184.0
-offset_right = 1087.0
-offset_bottom = -184.0
+offset_left = 1056.0
+offset_top = -960.0
+offset_right = 1056.0
+offset_bottom = -960.0
 scale = Vector2(2, 2)
 
 [node name="hearts_container" parent="UI/Control" instance=ExtResource("20_eua8a")]
@@ -11135,6 +11136,27 @@ anchor_right = 1.0
 offset_left = -106.0
 offset_right = 0.0
 grow_horizontal = 0
+
+[node name="spike" parent="." instance=ExtResource("21_baabm")]
+position = Vector2(1199, -99)
+rotation = 3.14159
+scale = Vector2(2.5, 2.5)
+frame = 6
+frame_progress = 0.573145
+
+[node name="spike2" parent="." instance=ExtResource("21_baabm")]
+position = Vector2(1088, -100)
+rotation = 3.14159
+scale = Vector2(2.5, 2.5)
+frame = 5
+frame_progress = 0.88003
+
+[node name="spike3" parent="." instance=ExtResource("21_baabm")]
+position = Vector2(977, -100)
+rotation = 3.14159
+scale = Vector2(2.5, 2.5)
+frame = 3
+frame_progress = 0.154939
 
 [connection signal="area_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_area_entered"]
 [connection signal="body_entered" from="walls_br/Breakable_wall5/wall_collision" to="walls_br/Breakable_wall5" method="_on_wall_collision_body_entered"]

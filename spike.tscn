@@ -1,0 +1,103 @@
+[gd_scene load_steps=15 format=3 uid="uid://bmiqcd23e753j"]
+
+[ext_resource type="Texture2D" uid="uid://b8iol0h5t4lhn" path="res://assets/Trap and Weapon/Spear.png" id="1_2l2ds"]
+[ext_resource type="Script" path="res://scripts/spike.gd" id="2_wn3co"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7b28n"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(0, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qmk5g"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(16, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wscay"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(32, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uvmsg"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(48, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vyyf2"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(64, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ww8en"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(80, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qbsnp"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(96, 0, 16, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2lq4o"]
+atlas = ExtResource("1_2l2ds")
+region = Rect2(112, 0, 16, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ek0ee"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7b28n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qmk5g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wscay")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uvmsg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vyyf2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ww8en")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qbsnp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2lq4o")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ugg6i"]
+size = Vector2(7.46835, 8.51655)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1qkak"]
+size = Vector2(9, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dlss2"]
+size = Vector2(9, 44)
+
+[node name="spike" type="AnimatedSprite2D"]
+texture_filter = 1
+position = Vector2(314, 129)
+sprite_frames = SubResource("SpriteFrames_ek0ee")
+autoplay = "default"
+frame = 7
+frame_progress = 0.3544
+script = ExtResource("2_wn3co")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0.5, -0.25)
+scale = Vector2(1.20509, 7.57349)
+shape = SubResource("RectangleShape2D_ugg6i")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0.5, 24.5)
+shape = SubResource("RectangleShape2D_1qkak")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0.5, 10)
+shape = SubResource("RectangleShape2D_dlss2")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
