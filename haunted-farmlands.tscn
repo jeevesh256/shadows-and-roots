@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://b1a0s2w0gtc4w"]
+[gd_scene load_steps=38 format=3 uid="uid://b1a0s2w0gtc4w"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_2ylln"]
 [ext_resource type="Texture2D" uid="uid://dynk6oncr6t0f" path="res://assets/Cute_Fantasy_Free/Outdoor decoration/Outdoor_Decor_Free.png" id="1_72ukd"]
@@ -10967,6 +10967,9 @@ size = Vector2(64, 48)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cmgc1"]
 size = Vector2(207, 59)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d3bp2"]
+size = Vector2(20, 34)
+
 [node name="Haunted-farmlands" type="Node2D"]
 script = ExtResource("1_nl5dn")
 
@@ -11034,5 +11037,15 @@ shape = SubResource("RectangleShape2D_cmgc1")
 [node name="mushroom" parent="." instance=ExtResource("20_bco8t")]
 position = Vector2(2389, -262)
 
+[node name="to_home" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="to_home"]
+position = Vector2(747, -30)
+shape = SubResource("RectangleShape2D_d3bp2")
+
+[node name="from_home" type="Marker2D" parent="."]
+position = Vector2(799, -40)
+
 [connection signal="body_entered" from="well" to="well" method="_on_body_entered"]
 [connection signal="body_entered" from="to_wh" to="to_wh" method="_on_body_entered"]
+[connection signal="body_entered" from="to_home" to="." method="_on_to_home_body_entered"]

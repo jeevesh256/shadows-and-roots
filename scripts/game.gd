@@ -149,3 +149,8 @@ func change_scene(scene_path: String, marker_name: String):
 			print("Player or marker instance is no longer valid")
 	else:
 		print("Spawn marker not found: " + marker_name)
+
+
+func _on_to_home_body_entered(body):
+	if body.name == "player":
+		change_scene("res://home.tscn","player_spawn")
