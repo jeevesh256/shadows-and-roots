@@ -97,3 +97,9 @@ func _on_ghost_spawn_2_body_entered(body):
 		var enemy_instance = enemy_scene.instantiate()
 		enemy_instance.position = Vector2(1982, -849)  # Fixed position for single skeleton
 		get_parent().add_child(enemy_instance)
+
+
+func _on_to_cr_body_entered(body):
+	if body.name == "player":
+		Game.change_scene("res://cursed_roots.tscn", "from_wh2")
+		
