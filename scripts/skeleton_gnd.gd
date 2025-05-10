@@ -5,6 +5,7 @@ extends CharacterBody2D
 @onready var p_1 = $p1
 @onready var p_2 = $p2
 @onready var anim = $AnimatedSprite2D
+@onready var hitbox = $hitbox
 
 var speed = 100
 var direction = 1
@@ -46,3 +47,9 @@ func _physics_process(delta):
 			anim.play("walk")
 	
 	move_and_slide()
+
+
+func _on_hitbox_body_entered(body):
+	if body.is_in_group("players"):
+		if body.has_method("damage"):
+			body.damage(1)

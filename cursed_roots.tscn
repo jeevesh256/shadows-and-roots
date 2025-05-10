@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dbyd0nykyi5tg"]
+[gd_scene load_steps=12 format=3 uid="uid://dbyd0nykyi5tg"]
 
 [ext_resource type="Script" path="res://scripts/cursed_roots.gd" id="1_73lx4"]
 [ext_resource type="Texture2D" uid="uid://ct143fbvdrl0i" path="res://assets/black.png" id="1_uha47"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://cdnd3vhu6vxcr" path="res://player.tscn" id="3_1g26e"]
 [ext_resource type="Script" path="res://scripts/camera_drag.gd" id="4_c0t4j"]
 [ext_resource type="PackedScene" uid="uid://cdc5cnp0m8n0e" path="res://skeleton_gnd.tscn" id="6_61w52"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="7_sfv6s"]
+[ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="8_u2wqj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a4pyj"]
 texture = ExtResource("2_qcyur")
@@ -435,5 +437,27 @@ shape = SubResource("RectangleShape2D_ecb3b")
 
 [node name="skeleton-gnd" parent="." instance=ExtResource("6_61w52")]
 position = Vector2(-2, 10)
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 0
+script = ExtResource("7_sfv6s")
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 1087.0
+offset_top = -184.0
+offset_right = 1087.0
+offset_bottom = -184.0
+scale = Vector2(2, 2)
+
+[node name="hearts_container" parent="UI/Control" instance=ExtResource("8_u2wqj")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -106.0
+offset_right = 0.0
+grow_horizontal = 0
 
 [connection signal="body_entered" from="to_wh" to="." method="_on_to_wh_body_entered"]

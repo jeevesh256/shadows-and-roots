@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://cdc5cnp0m8n0e"]
+[gd_scene load_steps=52 format=3 uid="uid://cdc5cnp0m8n0e"]
 
 [ext_resource type="Script" path="res://scripts/skeleton_gnd.gd" id="1_6onvv"]
 [ext_resource type="Texture2D" uid="uid://c45mxus6l27l3" path="res://assets/Enemy_Animations_Set/enemies-skeleton1_attack.png" id="1_qr0hw"]
@@ -331,7 +331,11 @@ height = 15.0
 radius = 8.0
 height = 20.0
 
-[node name="skeleton-gnd" type="CharacterBody2D" groups=["can_pogo", "enemy"]]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bw40t"]
+radius = 6.0
+height = 16.6667
+
+[node name="skeleton-gnd" type="CharacterBody2D" groups=["enemy"]]
 scale = Vector2(3, 3)
 script = ExtResource("1_6onvv")
 
@@ -339,16 +343,18 @@ script = ExtResource("1_6onvv")
 texture_filter = 1
 position = Vector2(4, 0)
 sprite_frames = SubResource("SpriteFrames_c63s6")
-animation = &"attack"
+animation = &"idle"
 autoplay = "idle"
-frame = 6
-frame_progress = 0.713359
+frame = 3
+frame_progress = 0.188372
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2(3, 5.5)
 shape = SubResource("CapsuleShape2D_k7mag")
 
 [node name="sword" type="Area2D" parent="." groups=["can_pogo"]]
+visible = false
 
 [node name="left" type="CollisionShape2D" parent="sword"]
 position = Vector2(10.6667, 2.66667)
@@ -365,3 +371,11 @@ position = Vector2(74.6667, 2.66667)
 
 [node name="p2" type="Marker2D" parent="."]
 position = Vector2(-56, 2.66667)
+
+[node name="hitbox" type="Area2D" parent="." groups=["can_pogo"]]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="hitbox"]
+position = Vector2(2.66667, 5)
+shape = SubResource("CapsuleShape2D_bw40t")
+
+[connection signal="body_entered" from="hitbox" to="." method="_on_hitbox_body_entered"]
