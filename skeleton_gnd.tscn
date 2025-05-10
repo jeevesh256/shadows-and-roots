@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://cdc5cnp0m8n0e"]
+[gd_scene load_steps=51 format=3 uid="uid://cdc5cnp0m8n0e"]
 
 [ext_resource type="Script" path="res://scripts/skeleton_gnd.gd" id="1_6onvv"]
 [ext_resource type="Texture2D" uid="uid://c45mxus6l27l3" path="res://assets/Enemy_Animations_Set/enemies-skeleton1_attack.png" id="1_qr0hw"]
@@ -331,11 +331,8 @@ height = 15.0
 radius = 8.0
 height = 20.0
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mh166"]
-height = 36.0
-
-[node name="skeleton-gnd" type="CharacterBody2D" groups=["enemy"]]
-scale = Vector2(2, 2)
+[node name="skeleton-gnd" type="CharacterBody2D" groups=["can_pogo", "enemy"]]
+scale = Vector2(3, 3)
 script = ExtResource("1_6onvv")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -344,36 +341,27 @@ position = Vector2(4, 0)
 sprite_frames = SubResource("SpriteFrames_c63s6")
 animation = &"attack"
 autoplay = "idle"
+frame = 6
+frame_progress = 0.713359
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-0.5, 5.5)
+position = Vector2(3, 5.5)
 shape = SubResource("CapsuleShape2D_k7mag")
 
 [node name="sword" type="Area2D" parent="." groups=["can_pogo"]]
 
 [node name="left" type="CollisionShape2D" parent="sword"]
-position = Vector2(4, 5)
+position = Vector2(10.6667, 2.66667)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_m5df4")
 
 [node name="right" type="CollisionShape2D" parent="sword"]
-position = Vector2(-5.5, 5)
+position = Vector2(-2.66667, 2.66667)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_m5df4")
 
-[node name="Area2D" type="Area2D" parent="."]
-visible = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2(0.5, 5)
-rotation = 1.5708
-shape = SubResource("CapsuleShape2D_mh166")
-
 [node name="p1" type="Marker2D" parent="."]
-position = Vector2(48, 4)
+position = Vector2(74.6667, 2.66667)
 
 [node name="p2" type="Marker2D" parent="."]
-position = Vector2(-40, 4)
-
-[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
-[connection signal="body_exited" from="Area2D" to="." method="_on_area_2d_body_exited"]
+position = Vector2(-56, 2.66667)

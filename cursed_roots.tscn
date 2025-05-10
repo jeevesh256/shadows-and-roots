@@ -434,6 +434,6 @@ position = Vector2(280.5, 136)
 shape = SubResource("RectangleShape2D_ecb3b")
 
 [node name="skeleton-gnd" parent="." instance=ExtResource("6_61w52")]
-position = Vector2(-2, 41)
+position = Vector2(-2, 10)
 
 [connection signal="body_entered" from="to_wh" to="." method="_on_to_wh_body_entered"]
