@@ -11152,9 +11152,10 @@ position = Vector2(322, -724)
 [node name="thorn24" parent="thorns" instance=ExtResource("13_83u46")]
 position = Vector2(189, -724)
 
-[node name="slime" type="Area2D" parent="." groups=["can_pogo"]]
-position = Vector2(640.62, -346)
+[node name="slime" type="Area2D" parent="." groups=["can_pogo", "slime"]]
+position = Vector2(690.382, -346)
 scale = Vector2(1.7, 1.7)
+collision_mask = 3
 script = ExtResource("19_qqocr")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="slime"]
@@ -11241,5 +11242,6 @@ position = Vector2(69, -451)
 [connection signal="body_entered" from="show_hidden/Area2D" to="." method="_on_area_2d_body_entered"]
 [connection signal="body_entered" from="show_hidden/Area2D2" to="." method="_on_area_2d_body_entered"]
 [connection signal="body_entered" from="ghost_spawn_2" to="." method="_on_ghost_spawn_2_body_entered"]
+[connection signal="area_entered" from="slime" to="slime" method="_on_area_entered"]
 [connection signal="body_entered" from="slime" to="slime" method="_on_body_entered"]
 [connection signal="body_entered" from="to_cr" to="." method="_on_to_cr_body_entered"]

@@ -1,6 +1,27 @@
-[gd_scene load_steps=10 format=3 uid="uid://xk8kaksxqp8r"]
+[gd_scene load_steps=16 format=3 uid="uid://xk8kaksxqp8r"]
 
 [ext_resource type="Texture2D" uid="uid://ptphw6kip6gk" path="res://assets/Cute_Fantasy_Free/Enemies/Slime.png" id="1_8dwji"]
+[ext_resource type="Script" path="res://scripts/slime.gd" id="1_y68sy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oybm2"]
+atlas = ExtResource("1_8dwji")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6ouck"]
+atlas = ExtResource("1_8dwji")
+region = Rect2(32, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4j1t"]
+atlas = ExtResource("1_8dwji")
+region = Rect2(64, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u7wyq"]
+atlas = ExtResource("1_8dwji")
+region = Rect2(96, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_av0hu"]
+atlas = ExtResource("1_8dwji")
+region = Rect2(128, 64, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q0k87"]
 atlas = ExtResource("1_8dwji")
@@ -30,6 +51,26 @@ region = Rect2(160, 32, 32, 32)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_oybm2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6ouck")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4j1t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u7wyq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_av0hu")
+}],
+"loop": true,
+"name": &"death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_q0k87")
 }, {
 "duration": 1.0,
@@ -56,15 +97,19 @@ animations = [{
 radius = 6.0
 height = 22.0
 
-[node name="slime" type="Area2D" groups=["can_pogo"]]
+[node name="slime" type="Area2D" groups=["can_pogo", "slime"]]
+script = ExtResource("1_y68sy")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_65chu")
+animation = &"death"
 autoplay = "default"
-frame_progress = 0.876743
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1, 2)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_04ly4")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

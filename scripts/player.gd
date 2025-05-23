@@ -484,7 +484,7 @@ func _on_attack_collision_area_entered(area):
 		handle_pogo_or_pushback()
 
 func _on_attack_collision_body_entered(body):
-	if body.is_in_group("enemies"):
+	if body.is_in_group("bosses"):
 		attacks += 1
 		if attacks == 15:
 			body.animated_sprite_2d.play("death")
@@ -504,6 +504,7 @@ func handle_pogo_or_pushback():
 		var horizontal_input = Input.get_axis("ui_left", "ui_right")
 		if horizontal_input != 0:
 			velocity.x = horizontal_input * MOVE_SPEED * 0.8
+		can_dash = true  # Reset dash ability after successful pogo
 	else:  # For all other attacks
 		var direction = -1 if animated_sprite_2d.flip_h else 1
 		velocity.x = -PUSHBACK_FORCE * direction

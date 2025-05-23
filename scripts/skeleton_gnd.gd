@@ -8,6 +8,7 @@ extends CharacterBody2D
 @onready var hitbox = $hitbox
 @onready var detection_area = $detection_area
 @onready var player = null  # Will be assigned in _ready()
+@onready var animated_sprite_2d = $AnimatedSprite2D
 
 var speed = 100  # Single speed value
 var direction = 1

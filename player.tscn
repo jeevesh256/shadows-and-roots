@@ -290,7 +290,6 @@ texture = ExtResource("3_eyfeg")
 offset = Vector2(-154.818, 33.6221)
 
 [node name="attack_collision" type="Area2D" parent="." groups=["player_attack"]]
-visible = false
 collision_layer = 2
 collision_mask = 3
 
