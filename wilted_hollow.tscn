@@ -1,4 +1,4 @@
-[gd_scene load_steps=53 format=3 uid="uid://deanm84vtc5qj"]
+[gd_scene load_steps=62 format=3 uid="uid://deanm84vtc5qj"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_f7gke"]
 [ext_resource type="Script" path="res://scripts/wilted_hollow.gd" id="1_wujuq"]
@@ -17,9 +17,10 @@
 [ext_resource type="PackedScene" uid="uid://0oruka5b1b0t" path="res://platform.tscn" id="12_cmn82"]
 [ext_resource type="PackedScene" uid="uid://da1pr72kvpqyo" path="res://thorn.tscn" id="13_83u46"]
 [ext_resource type="PackedScene" uid="uid://c4wrot4qa3qlf" path="res://mushroom.tscn" id="14_j03hx"]
+[ext_resource type="Texture2D" uid="uid://ptphw6kip6gk" path="res://assets/Cute_Fantasy_Free/Enemies/Slime.png" id="19_hlxe1"]
+[ext_resource type="Script" path="res://scripts/slime.gd" id="19_qqocr"]
 [ext_resource type="Script" path="res://scripts/UI.gd" id="19_wof52"]
 [ext_resource type="PackedScene" uid="uid://762wf2nqo5k7" path="res://hearts_container.tscn" id="20_eua8a"]
-[ext_resource type="PackedScene" uid="uid://xk8kaksxqp8r" path="res://slime.tscn" id="20_h6qwd"]
 [ext_resource type="PackedScene" uid="uid://bmiqcd23e753j" path="res://spike.tscn" id="21_baabm"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7k4s2"]
@@ -10727,24 +10728,67 @@ size = Vector2(45, 89)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lfxg0"]
 size = Vector2(90, 42)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_q0k87"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kq4ue"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vtu8n"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rknet"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(96, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1m3jj"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(128, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ka1s8"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(160, 32, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_65chu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q0k87")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kq4ue")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vtu8n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rknet")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1m3jj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ka1s8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_04ly4"]
+radius = 6.0
+height = 22.0
+
 [sub_resource type="Animation" id="Animation_emmwq"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(516, -345)]
-}
+length = 2.0
+loop_mode = 2
 
 [sub_resource type="Animation" id="Animation_vy25w"]
 resource_name = "move"
-length = 2.5
+length = 2.0
 loop_mode = 2
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -10753,10 +10797,10 @@ tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 2.5),
+"times": PackedFloat32Array(0, 2),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(516, -345), Vector2(776, -344)]
+"values": [Vector2(516, -346), Vector2(740, -346)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_8mds1"]
@@ -11108,9 +11152,21 @@ position = Vector2(322, -724)
 [node name="thorn24" parent="thorns" instance=ExtResource("13_83u46")]
 position = Vector2(189, -724)
 
-[node name="slime" parent="." instance=ExtResource("20_h6qwd")]
-position = Vector2(516, -345)
-scale = Vector2(1.4, 1.4)
+[node name="slime" type="Area2D" parent="." groups=["can_pogo"]]
+position = Vector2(640.62, -346)
+scale = Vector2(1.7, 1.7)
+script = ExtResource("19_qqocr")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="slime"]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_65chu")
+autoplay = "default"
+frame_progress = 0.876743
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="slime"]
+position = Vector2(-1, 2)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_04ly4")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="slime"]
 libraries = {
@@ -11185,4 +11241,5 @@ position = Vector2(69, -451)
 [connection signal="body_entered" from="show_hidden/Area2D" to="." method="_on_area_2d_body_entered"]
 [connection signal="body_entered" from="show_hidden/Area2D2" to="." method="_on_area_2d_body_entered"]
 [connection signal="body_entered" from="ghost_spawn_2" to="." method="_on_ghost_spawn_2_body_entered"]
+[connection signal="body_entered" from="slime" to="slime" method="_on_body_entered"]
 [connection signal="body_entered" from="to_cr" to="." method="_on_to_cr_body_entered"]

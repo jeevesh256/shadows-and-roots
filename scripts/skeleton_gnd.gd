@@ -7,6 +7,7 @@ extends CharacterBody2D
 @onready var anim = $AnimatedSprite2D
 @onready var hitbox = $hitbox
 @onready var detection_area = $detection_area
+@onready var player = null  # Will be assigned in _ready()
 
 var speed = 100  # Single speed value
 var direction = 1
@@ -23,7 +24,6 @@ var current_player = null
 var is_attacking = false
 var attack_range = 100.0  # Distance to start attack
 var last_known_player_pos = Vector2.ZERO
-var player = null  # Direct player reference
 
 enum State { PATROL, DETECT, CHASE, ATTACK, DASH, REPOSITION }
 var current_state = State.PATROL
@@ -47,7 +47,10 @@ func _ready():
 	left.disabled = true
 	right.disabled = true
 	anim.animation_finished.connect(_on_animation_finished)
+	
+	# Get player reference from the scene tree
 	player = get_tree().get_nodes_in_group("players")[0]
+	
 	# Determine which marker is left and right
 	if p_1.position.x < p_2.position.x:
 		left_marker = p_1.position.x
@@ -60,20 +63,33 @@ func _physics_process(delta):
 	velocity.y += gravity * delta
 	state_cooldown -= delta
 	
-	if is_on_floor() and is_instance_valid(player):
-		var dir_to_player = (player.global_position - global_position).normalized()
-		var distance = global_position.distance_to(player.global_position)
-		var y_diff = abs(player.global_position.y - global_position.y)
+	# Check if player exists and is valid
+	if not is_instance_valid(player):
+		player = get_tree().get_nodes_in_group("players")[0]
+		if not is_instance_valid(player):
+			handle_patrol()
+			move_and_slide()
+			return
+	
+	if is_on_floor():
+		# Calculate distance and direction more accurately
+		var to_player = player.global_position - global_position
+		var distance = to_player.length()
+		var y_diff = abs(to_player.y)
 		
 		# Only engage if on similar height level
-		if y_diff < 40:
+		if y_diff < 40 and distance < attack_range * 2:
+			var dir_to_player = to_player.normalized()
+			
 			match current_state:
 				State.PATROL:
-					handle_patrol()
-					if distance < attack_range * 1.5:
+					if distance < attack_range:
+						direction = sign(dir_to_player.x)
 						transition_to_state(State.CHASE)
+					else:
+						handle_patrol()
 				State.DETECT:
-					velocity.x = 0
+					velocity.x = lerp(velocity.x, 0.0, 0.1)
 					anim.play("walk")
 					if state_cooldown <= 0:
 						transition_to_state(State.CHASE)
@@ -85,9 +101,10 @@ func _physics_process(delta):
 					else:
 						handle_combat_state(dir_to_player, distance)
 		else:
-			# Return to patrol if height difference is too large
 			transition_to_state(State.PATROL)
+			handle_patrol()
 	
+	velocity.x = clamp(velocity.x, -speed * 1.5, speed * 1.5)
 	move_and_slide()
 
 func handle_patrol():

@@ -53,10 +53,10 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_04ly4"]
-radius = 8.0
+radius = 6.0
 height = 22.0
 
-[node name="slime" type="Area2D"]
+[node name="slime" type="Area2D" groups=["can_pogo"]]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
@@ -65,5 +65,6 @@ autoplay = "default"
 frame_progress = 0.876743
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, 2)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_04ly4")
