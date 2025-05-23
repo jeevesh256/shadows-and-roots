@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://b0xwrcgdohbwk"]
 
-[ext_resource type="Script" path="res://scripts/projectile.gd" id="1_tgf2v"]
+[ext_resource type="Script" path="res://scripts/projectile-enemy.gd" id="1_igukj"]
 [ext_resource type="Texture2D" uid="uid://c4hdtw0auw2ld" path="res://assets/kenney_particle-pack/PNG (Transparent)/muzzle_01.png" id="1_x3bsl"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_rpagh"]
@@ -11,9 +11,8 @@ height = 370.47
 texture_filter = 1
 scale = Vector2(0.1, 0.1)
 disable_mode = 1
-collision_layer = 2
-collision_mask = 4
-script = ExtResource("1_tgf2v")
+collision_mask = 3
+script = ExtResource("1_igukj")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(0.512379, 0.593868, 0.992729, 1)
@@ -31,5 +30,4 @@ shape = SubResource("CapsuleShape2D_rpagh")
 
 [node name="Timer" type="Timer" parent="."]
 
-[connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -97,7 +97,7 @@ animations = [{
 radius = 6.0
 height = 22.0
 
-[node name="slime" type="Area2D" groups=["can_pogo", "slime"]]
+[node name="slime" type="Area2D" groups=["can_pogo", "enemies", "slime"]]
 script = ExtResource("1_y68sy")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

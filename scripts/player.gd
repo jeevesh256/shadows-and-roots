@@ -34,7 +34,7 @@ var pushback_timer = 0.0  # Track pushback duration
 @onready var dash_effect_left = $dash2
 @onready var dash_effect_right = $dash1
 const DUST = preload("res://dust.tscn")
-const PROJECTILE = preload("res://projectile.tscn")
+const FIRE = preload("res://fire.tscn")
 @onready var attack_timer = $attack_collision/Timer
 @onready var sword_left = $attack_collision/sword_left
 @onready var sword_right = $attack_collision/sword_right
@@ -436,7 +436,7 @@ func shoot_projectile():
 	if is_dashing:  # Prevent shooting while dashing
 		return
 	can_shoot_projectile = false  # Disable further shooting for now
-	var projectile = PROJECTILE.instantiate()  # Create the Vengeful Spirit
+	var projectile = FIRE.instantiate()  # Create the Vengeful Spirit
 	get_parent().add_child(projectile)  # Add the projectile to the scene
 	projectile.global_position = marker2d.global_position
 

@@ -11152,7 +11152,7 @@ position = Vector2(322, -724)
 [node name="thorn24" parent="thorns" instance=ExtResource("13_83u46")]
 position = Vector2(189, -724)
 
-[node name="slime" type="Area2D" parent="." groups=["can_pogo", "slime"]]
+[node name="slime" type="Area2D" parent="." groups=["can_pogo", "enemies", "slime"]]
 position = Vector2(690.382, -346)
 scale = Vector2(1.7, 1.7)
 collision_mask = 3

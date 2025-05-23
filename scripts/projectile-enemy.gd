@@ -12,6 +12,10 @@ var direction = Vector2.ZERO  # Direction of the projectile
 @onready var timer = $Timer
 
 func _ready():
+	if !timer:
+		timer = Timer.new()
+		add_child(timer)
+		timer.timeout.connect(_on_Timer_timeout)
 	timer.wait_time = LIFETIME
 	timer.start()
 
@@ -22,13 +26,9 @@ func _process(delta):
 func _on_Timer_timeout():
 	queue_free()  # Destroy the projectile after it has existed for LIFETIME
 
-# Collision detection
-func _on_area_entered(area):
-	if area.is_in_group("enemies"):
-		area.queue_free()
-
 func _on_body_entered(body):
 	if body is TileMap:
 		queue_free()
-	elif body.is_in_group("enemies"):
-		body.queue_free()
+	elif body.is_in_group("players"):
+		body.damage(1)
+		queue_free()

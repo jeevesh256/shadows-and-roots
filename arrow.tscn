@@ -1,0 +1,72 @@
+[gd_scene load_steps=11 format=3 uid="uid://8vnvgsud2al1"]
+
+[ext_resource type="Script" path="res://scripts/arrow.gd" id="1_bbb3m"]
+[ext_resource type="Texture2D" uid="uid://cmghf6yodxtos" path="res://assets/Trap and Weapon/Shooter_Arrow_Trap.png" id="1_oxvkn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2c87"]
+atlas = ExtResource("1_oxvkn")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bv0fs"]
+atlas = ExtResource("1_oxvkn")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y4csp"]
+atlas = ExtResource("1_oxvkn")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kd6xo"]
+atlas = ExtResource("1_oxvkn")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jwxel"]
+atlas = ExtResource("1_oxvkn")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2un7a"]
+atlas = ExtResource("1_oxvkn")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8j0hv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2c87")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bv0fs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y4csp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kd6xo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jwxel")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2un7a")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_s0yqc"]
+size = Vector2(13, 7)
+
+[node name="arrow" type="StaticBody2D" groups=["can_pogo"]]
+script = ExtResource("1_bbb3m")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_8j0hv")
+autoplay = "default"
+frame_progress = 0.783269
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, -4.5)
+shape = SubResource("RectangleShape2D_s0yqc")
+
+[node name="Marker2D" type="Marker2D" parent="."]

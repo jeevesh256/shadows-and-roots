@@ -339,7 +339,7 @@ height = 16.6667
 radius = 8.33333
 height = 32.6667
 
-[node name="skeleton-gnd" type="CharacterBody2D" groups=["bosses", "enemy"]]
+[node name="skeleton-gnd" type="CharacterBody2D" groups=["bosses"]]
 scale = Vector2(3, 3)
 script = ExtResource("1_6onvv")
 
