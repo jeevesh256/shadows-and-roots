@@ -12,6 +12,7 @@ extends CharacterBody2D
 
 var speed = 100  # Single speed value
 var direction = 1
+var facing_direction = 1  # Add this new variable for visual facing
 var gravity = 980
 var buffer = 5.0  # Small buffer for smoother direction changes
 
@@ -26,8 +27,9 @@ var is_attacking = false
 var attack_range = 100.0  # Distance to start attack
 var last_known_player_pos = Vector2.ZERO
 
-enum State { PATROL, DETECT, CHASE, ATTACK, DASH, REPOSITION }
+enum State { PATROL, DETECT, ATTACK, DASH_ATTACK }
 var current_state = State.PATROL
+
 var optimal_attack_distance = 80.0
 var health = 100
 var dash_speed = 300
@@ -44,10 +46,25 @@ var current_pattern = CombatPattern.APPROACH_ATTACK
 var pattern_step = 0
 var pattern_complete = true
 
+var attack_telegraph_time = 0.5
+var dash_telegraph_time = 0.7
+var modulate_default = Color(1, 1, 1, 1)
+var modulate_attack = Color(1, 0.5, 0.5, 1)  # Red tint
+var modulate_dash = Color(0.5, 0.5, 1, 1)    # Blue tint
+
+var last_player_positions = []
+const MAX_STORED_POSITIONS = 30  # Store 0.5 seconds of positions at 60fps
+var jump_force = -400
+var max_attack_attempts = 3
+
+var current_attack_frame = 0
+var attack_movement_speed = 50  # Speed during attack
+
 func _ready():
 	left.disabled = true
 	right.disabled = true
 	anim.animation_finished.connect(_on_animation_finished)
+	modulate = modulate_default
 	
 	# Get player reference from the scene tree
 	player = get_tree().get_nodes_in_group("players")[0]
@@ -60,11 +77,11 @@ func _ready():
 		left_marker = p_2.position.x
 		right_marker = p_1.position.x
 
+	anim.frame_changed.connect(_on_frame_changed)
+
 func _physics_process(delta):
 	velocity.y += gravity * delta
-	state_cooldown -= delta
 	
-	# Check if player exists and is valid
 	if not is_instance_valid(player):
 		player = get_tree().get_nodes_in_group("players")[0]
 		if not is_instance_valid(player):
@@ -72,197 +89,203 @@ func _physics_process(delta):
 			move_and_slide()
 			return
 	
+	# Store player positions
+	if is_instance_valid(player):
+		last_player_positions.push_back(player.global_position)
+		if last_player_positions.size() > MAX_STORED_POSITIONS:
+			last_player_positions.pop_front()
+	
+	var to_player = player.global_position - global_position
+	var distance = to_player.length()
+	var y_diff = abs(to_player.y)
+	
 	if is_on_floor():
-		# Calculate distance and direction more accurately
-		var to_player = player.global_position - global_position
-		var distance = to_player.length()
-		var y_diff = abs(to_player.y)
-		
-		# Only engage if on similar height level
-		if y_diff < 40 and distance < attack_range * 2:
-			var dir_to_player = to_player.normalized()
-			
-			match current_state:
-				State.PATROL:
-					if distance < attack_range:
-						direction = sign(dir_to_player.x)
-						transition_to_state(State.CHASE)
-					else:
-						handle_patrol()
-				State.DETECT:
-					velocity.x = lerp(velocity.x, 0.0, 0.1)
-					anim.play("walk")
-					if state_cooldown <= 0:
-						transition_to_state(State.CHASE)
-				State.CHASE:
-					handle_strategic_chase(dir_to_player, distance)
-				State.ATTACK, State.DASH, State.REPOSITION:
-					if distance > attack_range * 2:
-						transition_to_state(State.CHASE)
-					else:
-						handle_combat_state(dir_to_player, distance)
+		if distance < attack_range * 1.5 and y_diff < 60:
+			update_facing_direction()
+			choose_combat_state(distance)
 		else:
-			transition_to_state(State.PATROL)
+			current_state = State.PATROL
 			handle_patrol()
 	
 	velocity.x = clamp(velocity.x, -speed * 1.5, speed * 1.5)
 	move_and_slide()
 
+func choose_combat_state(distance: float):
+	if not can_attack or is_attacking:
+		return
+	
+	if distance > attack_range * 1.5:
+		current_state = State.PATROL
+		return
+		
+	if distance < optimal_attack_distance:
+		current_state = State.ATTACK
+		handle_attack()
+	else:
+		# Reduced jump chance to 15% and add better conditions
+		var should_jump = randf() < 0.15 and last_player_positions.size() >= MAX_STORED_POSITIONS and not is_attacking and is_on_floor()
+		if should_jump and abs(player.global_position.y - global_position.y) > 20:  # Only jump if player is higher
+			perform_jump_attack()
+		else:
+			current_state = State.DASH_ATTACK
+			handle_dash_attack()
+
+func perform_jump_attack():
+	if not is_on_floor():
+		return
+	
+	# Get slightly newer position (0.3 seconds ago instead of 0.5)
+	var target_index = min(last_player_positions.size() - 1, MAX_STORED_POSITIONS * 0.6) as int
+	var target_pos = last_player_positions[target_index] if last_player_positions.size() > 0 else player.global_position
+	
+	# Calculate jump trajectory
+	var to_target = target_pos - global_position
+	direction = sign(to_target.x)
+	
+	# Adjusted jump force based on height difference
+	var height_diff = target_pos.y - global_position.y
+	velocity.y = jump_force - min(height_diff * 0.5, 200)
+	velocity.x = direction * speed * 1.2  # Slightly reduced horizontal speed
+	
+	anim.flip_h = (direction < 0)
+	anim.play("walk")
+	
+	# Shorter wait time
+	await get_tree().create_timer(0.4).timeout
+	if is_on_floor():
+		start_attack()
+	else:
+		current_state = State.PATROL
+
 func handle_patrol():
+	# Simple patrol between markers
 	if position.x >= right_marker:
 		direction = -1
 	elif position.x <= left_marker:
 		direction = 1
 	
 	velocity.x = direction * speed
-	anim.flip_h = (direction < 0)
-	anim.play("walk")
-
-func handle_strategic_chase(dir_to_player: Vector2, distance: float):
-	if state_cooldown <= 0:
-		if distance < optimal_combat_range:
-			choose_combat_action(distance)
-		else:
-			# Smart approach
-			direction = sign(dir_to_player.x)
-			velocity.x = direction * speed
-			anim.flip_h = (direction < 0)
-			anim.play("walk")
-
-func choose_combat_action(distance: float):
-	if pattern_complete:
-		pattern_complete = false
-		pattern_step = 0
-		# Choose next pattern based on distance
-		if distance > optimal_combat_range:
-			current_pattern = CombatPattern.DASH_ATTACK
-		elif distance < optimal_attack_distance:
-			current_pattern = CombatPattern.REPOSITION_ATTACK
-		else:
-			current_pattern = CombatPattern.APPROACH_ATTACK
-	
-	match current_pattern:
-		CombatPattern.APPROACH_ATTACK:
-			execute_approach_pattern()
-		CombatPattern.DASH_ATTACK:
-			execute_dash_pattern()
-		CombatPattern.REPOSITION_ATTACK:
-			execute_reposition_pattern()
-
-func execute_approach_pattern():
-	match pattern_step:
-		0:  # Approach
-			transition_to_state(State.CHASE)
-			pattern_step += 1
-		1:  # Attack when in range
-			if abs(global_position.x - player.global_position.x) < optimal_attack_distance:
-				transition_to_state(State.ATTACK)
-				pattern_step += 1
-		2:  # Pattern complete
-			pattern_complete = true
-
-func execute_dash_pattern():
-	match pattern_step:
-		0:  # Prepare dash
-			transition_to_state(State.DASH)
-			pattern_step += 1
-		1:  # Wait for dash to complete
-			if current_state != State.DASH:
-				pattern_step += 1
-		2:  # Attack
-			transition_to_state(State.ATTACK)
-			pattern_step += 1
-		3:  # Pattern complete
-			pattern_complete = true
-
-func execute_reposition_pattern():
-	match pattern_step:
-		0:  # Move to optimal distance
-			transition_to_state(State.REPOSITION)
-			pattern_step += 1
-		1:  # Wait for repositioning
-			if abs(global_position.x - player.global_position.x) >= optimal_attack_distance:
-				pattern_step += 1
-		2:  # Attack
-			transition_to_state(State.ATTACK)
-			pattern_step += 1
-		3:  # Pattern complete
-			pattern_complete = true
-
-func transition_to_state(new_state: int):
-	if state_cooldown <= 0:
-		current_state = new_state
-		state_cooldown = min_state_time
-		match new_state:
-			State.DETECT:
-				state_cooldown = 0.3
-			State.ATTACK:
-				state_cooldown = 0.8
-			State.DASH:
-				prepare_dash()
-			State.PATROL:
-				pattern_complete = true  # Reset pattern when returning to patrol
-
-func handle_combat_state(dir_to_player: Vector2, distance: float):
-	match current_state:
-		State.ATTACK:
-			handle_attack(dir_to_player, distance)
-		State.DASH:
-			handle_dash()
-		State.REPOSITION:
-			handle_tactical_reposition(distance)
-
-func handle_tactical_reposition(distance: float):
-	var optimal_x = player.global_position.x
-	if distance < optimal_combat_range:
-		optimal_x += direction * optimal_combat_range
-	
-	direction = sign(optimal_x - global_position.x)
-	velocity.x = direction * speed
-	anim.flip_h = (direction < 0)
+	# Update facing to match movement direction in patrol
+	facing_direction = direction
+	anim.flip_h = (facing_direction < 0)
 	anim.play("walk")
 	
-	if abs(global_position.x - optimal_x) < 10:
-		transition_to_state(State.ATTACK)
+	# Check for player
+	if player_in_range:
+		var to_player = player.global_position - global_position
+		var distance = to_player.length()
+		if distance < attack_range:
+			choose_attack_type()
 
-func prepare_dash():
-	current_state = State.DASH
-	dash_target = player.global_position
-	# Brief pause before dash
+func handle_detect():
 	velocity.x = 0
-	await get_tree().create_timer(0.2).timeout
-	if is_instance_valid(player):
-		direction = sign(player.global_position.x - global_position.x)
+	anim.play("idle")
+	if state_cooldown <= 0:
+		choose_attack_type()
 
-func handle_dash():
+func handle_attack():
+	if not is_attacking and is_on_floor():
+		update_attack_direction()
+		telegraph_attack()
+
+func handle_dash_attack():
+	if not is_attacking and is_on_floor():
+		update_attack_direction()
+		telegraph_dash_attack()
+
+func choose_attack_type():
+	var distance = global_position.distance_to(player.global_position)
+	if distance > optimal_attack_distance:
+		current_state = State.DASH_ATTACK
+	else:
+		current_state = State.ATTACK
+
+func telegraph_attack():
+	modulate = modulate_attack
+	anim.play("idle")
+	velocity.x = 0
+	await get_tree().create_timer(attack_telegraph_time).timeout
+	if current_state == State.ATTACK:
+		start_attack()
+
+func telegraph_dash_attack():
+	modulate = modulate_dash
+	anim.play("idle")
+	velocity.x = 0
+	await get_tree().create_timer(dash_telegraph_time).timeout
+	if current_state == State.DASH_ATTACK:
+		dash_to_player()
+
+func update_facing_direction():
+	if not is_instance_valid(player):
+		return
+		
+	var new_direction = sign(player.global_position.x - global_position.x)
+	if new_direction != 0:
+		# Only update facing direction if we're not moving or moving in that direction
+		if abs(velocity.x) < 10 or sign(velocity.x) == new_direction:
+			facing_direction = new_direction
+			anim.flip_h = (facing_direction < 0)
+		direction = new_direction
+
+func update_attack_direction():
+	if is_instance_valid(player):
+		# Update direction only if player crosses to other side
+		var player_side = sign(player.global_position.x - global_position.x)
+		if player_side != direction and not is_attacking:
+			direction = player_side
+			anim.flip_h = (direction < 0)
+
+func dash_to_player():
 	if not is_instance_valid(player):
 		current_state = State.PATROL
 		return
-		
-	velocity.x = direction * dash_speed
-	anim.play("walk")  # Should have a dash animation
 	
-	if abs(global_position.x - dash_target.x) < 20:
-		transition_to_state(State.ATTACK)
+	direction = sign(player.global_position.x - global_position.x)
+	facing_direction = direction  # Update facing direction with dash
+	velocity.x = direction * dash_speed
+	anim.flip_h = (facing_direction < 0)
+	anim.play("walk")
+	
+	# Quick dash then attack
+	await get_tree().create_timer(0.2).timeout
+	var distance = global_position.distance_to(player.global_position)
+	if distance <= attack_range:
 		start_attack()
-
-func handle_attack(dir_to_player: Vector2, distance: float):
-	if can_attack and not is_attacking:
-		if distance > optimal_attack_distance:
-			transition_to_state(State.CHASE)
-		else:
-			direction = sign(dir_to_player.x)
-			anim.flip_h = (direction < 0)
-			start_attack()
+	else:
+		current_state = State.PATROL
 
 func start_attack():
+	modulate = modulate_default
 	is_attacking = true
-	velocity.x = direction * speed * 0.3  # Slight movement during attack
+	current_attack_frame = 0
+	velocity.x = direction * attack_movement_speed  # Move forward during attack
 	anim.play("attack")
-	if direction < 0:
-		right.disabled = false
-	else:
-		left.disabled = false
+	
+	# Update direction one final time before attack
+	if is_instance_valid(player):
+		direction = sign(player.global_position.x - global_position.x)
+		anim.flip_h = (direction < 0)
+	
+	# Ensure swords start disabled
+	left.disabled = true
+	right.disabled = true
+
+func _on_frame_changed():
+	if anim.animation == "attack":
+		current_attack_frame = anim.frame
+		# Enable sword hitbox only on frames 7 and 8
+		if current_attack_frame in [7, 8]:
+			if direction < 0:
+				right.disabled = false
+				left.disabled = true
+			else:
+				left.disabled = false
+				right.disabled = true
+		else:
+			# Disable both hitboxes on all other frames
+			left.disabled = true
+			right.disabled = true
 
 func _on_animation_finished():
 	if anim.animation == "attack":
@@ -272,6 +295,13 @@ func _on_animation_finished():
 		can_attack = false
 		await get_tree().create_timer(attack_cooldown).timeout
 		can_attack = true
+		
+		# Immediately check for new attack opportunity
+		if is_instance_valid(player):
+			var distance = global_position.distance_to(player.global_position)
+			choose_combat_state(distance)
+		else:
+			current_state = State.PATROL
 
 func _on_hitbox_body_entered(body):
 	if body.is_in_group("players"):
@@ -293,3 +323,22 @@ func _on_detection_area_body_exited(body):
 		left.disabled = true
 		right.disabled = true
 		transition_to_state(State.PATROL)
+
+func transition_to_state(new_state: int):
+	if state_cooldown <= 0:
+		current_state = new_state
+		state_cooldown = min_state_time
+		match new_state:
+			State.DETECT:
+				state_cooldown = 0.3
+				anim.play("idle")
+			State.ATTACK:
+				state_cooldown = 0.8
+			State.PATROL:
+				anim.play("walk")
+
+
+func _on_sword_body_entered(body):
+	if body.is_in_group("players"):
+		if body.has_method("damage"):
+			body.damage(1)
