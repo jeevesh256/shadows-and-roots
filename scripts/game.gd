@@ -96,10 +96,10 @@ func respawn():
 		player.global_position = current_respawn_point.global_position
 
 func clear_enemies():
-	# Get all enemies in the scene
-	var enemies = get_tree().get_nodes_in_group("enemies")
-	for enemy in enemies:
-		enemy.queue_free()
+	var groups = ["enemies", "enemies-1"]
+	for group_name in groups:
+		for enemy in get_tree().get_nodes_in_group(group_name):
+			enemy.queue_free()
 
 func get_current_health() -> int:
 	return current_health

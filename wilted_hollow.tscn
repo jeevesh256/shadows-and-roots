@@ -1,4 +1,4 @@
-[gd_scene load_steps=62 format=3 uid="uid://deanm84vtc5qj"]
+[gd_scene load_steps=67 format=3 uid="uid://deanm84vtc5qj"]
 
 [ext_resource type="Shader" path="res://scripts/bw.gdshader" id="1_f7gke"]
 [ext_resource type="Script" path="res://scripts/wilted_hollow.gd" id="1_wujuq"]
@@ -10728,6 +10728,26 @@ size = Vector2(45, 89)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lfxg0"]
 size = Vector2(90, 42)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_yn2jd"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pn124"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(32, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_epvqa"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(64, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2h5pj"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(96, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a2laj"]
+atlas = ExtResource("19_hlxe1")
+region = Rect2(128, 64, 32, 32)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_q0k87"]
 atlas = ExtResource("19_hlxe1")
 region = Rect2(0, 32, 32, 32)
@@ -10754,6 +10774,26 @@ region = Rect2(160, 32, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_65chu"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yn2jd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pn124")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_epvqa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2h5pj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a2laj")
+}],
+"loop": false,
+"name": &"death",
+"speed": 20.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_q0k87")
@@ -11155,14 +11195,17 @@ position = Vector2(189, -724)
 [node name="slime" type="Area2D" parent="." groups=["can_pogo", "enemies", "slime"]]
 position = Vector2(690.382, -346)
 scale = Vector2(1.7, 1.7)
+collision_layer = 2
 collision_mask = 3
 script = ExtResource("19_qqocr")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="slime"]
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_65chu")
+animation = &"death"
 autoplay = "default"
-frame_progress = 0.876743
+frame = 4
+frame_progress = 1.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="slime"]
 position = Vector2(-1, 2)
@@ -11210,8 +11253,8 @@ frame_progress = 0.573145
 position = Vector2(1088, -100)
 rotation = 3.14159
 scale = Vector2(2.5, 2.5)
-frame = 5
-frame_progress = 0.88003
+frame = 0
+frame_progress = 0.331102
 
 [node name="spike3" parent="spikes" instance=ExtResource("21_baabm")]
 position = Vector2(931, -100)

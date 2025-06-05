@@ -91,7 +91,7 @@ animations = [{
 radius = 7.0
 height = 26.0
 
-[node name="skeleton" groups=["enemies"] instance=ExtResource("1_7smpo")]
+[node name="skeleton" groups=["enemies", "enemies-1"] instance=ExtResource("1_7smpo")]
 scale = Vector2(1.4, 1.4)
 collision_layer = 2
 script = ExtResource("2_wooa1")

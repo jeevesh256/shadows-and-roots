@@ -473,7 +473,7 @@ func _on_animation_finished():
 		Game.respawn()  # Trigger respawn after death animation
 
 func _on_attack_collision_area_entered(area):
-	if area.is_in_group("enemies"):
+	if area.is_in_group("enemies-1"):
 		area.animated_sprite_2d.play("death")
 		area.set_deferred("monitoring", false)
 		

@@ -24,4 +24,5 @@ func _on_area_entered(area):
 		attacks += 1
 		if attacks == 3:
 			animated_sprite_2d.play("death")
+			await animated_sprite_2d.animation_finished
 			queue_free()
