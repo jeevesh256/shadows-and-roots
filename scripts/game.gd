@@ -8,9 +8,9 @@ signal health_changed(current: int, maximum: int)
 
 # Abilities dictionary
 var abilities = {
-	"wall_jump": false,
-	"dash": false,
-	"projectile": false
+	"wall_jump": true,
+	"dash": true,
+	"projectile": true
 }
 
 # Health system

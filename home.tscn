@@ -2486,10 +2486,10 @@ rotation = 1.5708
 shape = SubResource("RectangleShape2D_8s7un")
 
 [node name="player_spawn" type="Marker2D" parent="."]
-position = Vector2(59, 150)
+position = Vector2(464, 214)
 
 [node name="player" parent="." instance=ExtResource("6_nenxp")]
-position = Vector2(59, 130)
+position = Vector2(464, 225)
 
 [node name="Marker_drag" type="Marker2D" parent="player"]
 script = ExtResource("7_c5rly")

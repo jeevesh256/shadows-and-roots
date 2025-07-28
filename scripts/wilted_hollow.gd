@@ -103,3 +103,8 @@ func _on_to_cr_body_entered(body):
 	if body.name == "player":
 		Game.change_scene("res://cursed_roots.tscn", "from_wh2")
 		
+
+
+func _on_to_cr_2_body_entered(body):
+	if body.name == "player":
+		Game.change_scene("res://cursed_roots.tscn", "from_wh")

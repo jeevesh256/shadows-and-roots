@@ -22,3 +22,8 @@ func _on_to_wh_body_entered(body):
 func _on_hidden_body_entered(body):
 	if body.name == "player":
 		tile_map.set_layer_enabled(2,false)
+
+
+func _on_to_wh_2_body_entered(body):
+	if body.name == "player":
+		Game.change_scene("res://wilted_hollow.tscn", "player_from_cr2")

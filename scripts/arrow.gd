@@ -4,18 +4,19 @@ extends StaticBody2D
 @onready var marker_2d = $Marker2D
 const PROJECTILE = preload("res://projectile.tscn")
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	animated_sprite_2d.frame_changed.connect(_on_frame_changed)
 
 func _on_frame_changed():
-	if animated_sprite_2d.frame == 3:  # Frame 4 (0-based index)
+	if animated_sprite_2d.frame == 3:
 		var projectile = PROJECTILE.instantiate()
 		get_tree().current_scene.add_child(projectile)
+		
 		projectile.global_position = marker_2d.global_position
-		projectile.direction = Vector2.RIGHT
+		
+		# Assuming arrow sprite points DOWN by default
+		projectile.direction = Vector2.DOWN.rotated(global_rotation).normalized()
+		projectile.rotation = projectile.direction.angle()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
